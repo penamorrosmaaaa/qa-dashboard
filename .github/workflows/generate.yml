@@ -1,0 +1,33 @@
+name: Generar Dashboard QA
+
+on:
+  push:
+    paths:
+      - 'reporte_tarjetas.xlsx'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v2
+
+      - name: Instalar Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Instalar dependencias
+        run: |
+          pip install pandas openpyxl
+
+      - name: Ejecutar script y generar HTML
+        run: python dashboard_generator.py
+
+      - name: Subir cambios generados
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add index.html
+          git commit -m "HTML actualizado automáticamente"
+          git push
