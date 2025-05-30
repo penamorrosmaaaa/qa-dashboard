@@ -4,8 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard QA Completo - Todas las Métricas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
+        :root {
+            --primary-color: #4A00E0;
+            --secondary-color: #8E2DE2;
+            --accent-color: #00C9FF;
+            --background-light: #F0F2F5;
+            --card-background: #FFFFFF;
+            --text-dark: #1C1E21;
+            --text-medium: #65676B;
+            --text-light: #A0A3A7;
+            --border-light: #E0E0E0;
+            --success-color: #27AE60;
+            --warning-color: #F39C12;
+            --danger-color: #E74C3C;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,10 +29,12 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #f0f2f5;
-            color: #1c1e21;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
             line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .container {
@@ -26,50 +44,59 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             color: white;
             padding: 40px;
             border-radius: 15px;
             margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            text-align: center;
         }
 
         h1 {
-            font-size: 2.5em;
+            font-size: 2.8em;
             margin-bottom: 10px;
+            font-weight: 700;
         }
 
         .timestamp {
             opacity: 0.9;
             font-size: 0.9em;
+            font-weight: 300;
         }
 
         .nav-tabs {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 30px;
             flex-wrap: wrap;
+            justify-content: center;
         }
 
         .tab-button {
-            padding: 12px 24px;
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            padding: 14px 28px;
+            background: var(--card-background);
+            border: none; /* Removed border */
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 1.05em;
+            color: var(--text-medium);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* Subtle shadow */
         }
 
         .tab-button:hover {
-            background: #f5f5f5;
-            transform: translateY(-2px);
+            background: var(--background-light);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .tab-button.active {
-            background: #667eea;
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             color: white;
-            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transform: translateY(-1px);
         }
 
         .tab-content {
@@ -83,162 +110,290 @@
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+            gap: 25px;
             margin-bottom: 30px;
         }
 
         .stat-card {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            background: var(--card-background);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.15);
         }
 
         .stat-value {
-            font-size: 2.5em;
+            font-size: 3em;
             font-weight: bold;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin: 10px 0;
+            line-height: 1;
         }
 
         .stat-label {
-            color: #65676b;
-            font-size: 0.9em;
+            color: var(--text-medium);
+            font-size: 0.95em;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.2px;
             font-weight: 600;
+            margin-bottom: 5px;
         }
 
         .section-title {
-            font-size: 1.8em;
-            color: #1c1e21;
-            margin: 30px 0 20px 0;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #667eea;
+            font-size: 2.2em;
+            color: var(--text-dark);
+            margin: 40px 0 25px 0;
+            padding-bottom: 12px;
+            border-bottom: 4px solid var(--primary-color);
+            font-weight: 700;
         }
 
         table {
             width: 100%;
-            background: white;
-            border-radius: 12px;
+            background: var(--card-background);
+            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             margin-bottom: 30px;
+            border-collapse: separate; /* For rounded corners */
+            border-spacing: 0; /* For rounded corners */
         }
 
         th {
-            background: #667eea;
+            background: var(--primary-color);
             color: white;
-            padding: 15px;
+            padding: 18px 20px;
             text-align: left;
             font-weight: 600;
-            font-size: 0.9em;
+            font-size: 0.95em;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
         }
+        
+        th:first-child { border-top-left-radius: 15px; }
+        th:last-child { border-top-right-radius: 15px; }
 
         td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #f0f0f0;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-dark);
+        }
+
+        tr:nth-child(even) {
+            background-color: #F8F9FA; /* Light stripe */
         }
 
         tr:hover {
-            background-color: #f8f9fa;
+            background-color: #EBF2FF; /* Lighter blue on hover */
         }
 
         tr:last-child td {
             border-bottom: none;
         }
+        
+        tr:last-child td:first-child { border-bottom-left-radius: 15px; }
+        tr:last-child td:last-child { border-bottom-right-radius: 15px; }
+
 
         .percentage {
             display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
+            padding: 6px 14px;
+            border-radius: 25px;
             font-weight: bold;
-            font-size: 0.85em;
+            font-size: 0.88em;
+            transition: all 0.2s ease;
         }
 
         .percentage.high {
-            background-color: #fee;
-            color: #d00;
+            background-color: #FEECEB;
+            color: var(--danger-color);
         }
 
         .percentage.medium {
-            background-color: #fff3cd;
-            color: #856404;
+            background-color: #FFF8D4;
+            color: var(--warning-color);
         }
 
         .percentage.low {
-            background-color: #d4edda;
-            color: #155724;
+            background-color: #D4EDDA;
+            color: var(--success-color);
         }
 
         .chart-container {
-            background: white;
+            background: var(--card-background);
             padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             margin-bottom: 30px;
         }
 
         .info-box {
-            background: #f8f9fa;
-            border-left: 4px solid #667eea;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 8px;
+            background: #F8F9FA;
+            border-left: 5px solid var(--primary-color);
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            color: var(--text-dark);
+            font-size: 1.05em;
+        }
+
+        .info-box h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.6em;
+            font-weight: 600;
+        }
+        .info-box p {
+            margin-bottom: 8px;
+        }
+        .info-box strong {
+            color: var(--text-dark);
         }
 
         .metric-group {
-            background: #f8f9fa;
+            background: #F8F9FA;
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 10px;
             margin: 10px 0;
+            border: 1px solid var(--border-light);
         }
 
         .metric-group h4 {
-            color: #667eea;
+            color: var(--primary-color);
             margin-bottom: 10px;
+            font-size: 1.3em;
+            font-weight: 600;
         }
 
         .week-selector {
-            margin: 20px 0;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin: 25px 0;
+            padding: 20px;
+            background: var(--card-background);
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .week-selector label {
+            font-size: 1.1em;
+            font-weight: 500;
+            color: var(--text-dark);
         }
 
         .week-selector select {
-            padding: 8px 15px;
+            padding: 10px 18px;
             font-size: 1em;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
             background: white;
             cursor: pointer;
+            appearance: none; /* Remove default arrow */
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M287%2C114.7L154.7%2C247c-2.3%2C2.3-5.3%2C3.5-8.3%2C3.5s-6.1-1.2-8.3-3.5L5.4%2C114.7c-4.5-4.5-4.5-11.7%2C0-16.2l16.2-16.2c4.5-4.5%2C11.7-4.5%2C16.2%2C0L146%2C178.4l108.2-108.2c4.5-4.5%2C11.7-4.5%2C16.2%2C0l16.2%2C16.2C291.5%2C103%2C291.5%2C110.2%2C287%2C114.7z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 15px top 50%;
+            background-size: 0.65em auto;
+            min-width: 200px;
         }
 
         .highlight {
-            background: #fff3cd;
-            padding: 2px 4px;
-            border-radius: 3px;
+            background: #FFF3CD;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: 600;
+            color: var(--warning-color);
         }
 
         .small-text {
-            font-size: 0.85em;
-            color: #65676b;
+            font-size: 0.88em;
+            color: var(--text-medium);
         }
 
         .developer-table-row {
             cursor: pointer;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header {
+                padding: 30px 20px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            .nav-tabs {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .tab-button {
+                width: 100%;
+                text-align: center;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .stat-card {
+                padding: 25px;
+            }
+            .stat-value {
+                font-size: 2.5em;
+            }
+            .section-title {
+                font-size: 1.8em;
+            }
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch; /* for smooth scrolling on iOS */
+            }
+            table thead, table tbody, table th, table td, table tr {
+                display: block;
+            }
+            table tr {
+                margin-bottom: 15px;
+                border: 1px solid var(--border-light);
+                border-radius: 10px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            }
+            table td {
+                border-bottom: 1px solid var(--border-light);
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+            }
+            table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                width: calc(50% - 20px);
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: 600;
+                color: var(--text-dark);
+            }
+            table th {
+                display: none; /* Hide original headers */
+            }
+            .week-selector {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .week-selector select {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -246,7 +401,7 @@
     <div class="container">
         <div class="header">
             <h1>📊 Dashboard QA Completo - Análisis de Tarjetas</h1>
-            <p class="timestamp">Generado el: 30/05/2025 a las 12:23:06</p>
+            <p class="timestamp">Generado el: 30/05/2025 a las 12:42:47</p>
             <p class="timestamp">Total de semanas analizadas: 10</p>
         </div>
 
@@ -322,60 +477,60 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td>María De Los Angeles</td>
-                    <td>51</td>
-                    <td>14</td>
-                    <td>5.10</td>
-                    <td><span class="percentage high">27.45%</span></td>
+                    <td data-label="QA/PM">María De Los Angeles</td>
+                    <td data-label="Total Revisadas">51</td>
+                    <td data-label="Total Rechazadas">14</td>
+                    <td data-label="Promedio Semanal">5.10</td>
+                    <td data-label="% Rechazo"><span class="percentage high">27.45%</span></td>
                 </tr>
                 <tr>
-                    <td>Kevin Jared</td>
-                    <td>31</td>
-                    <td>8</td>
-                    <td>3.10</td>
-                    <td><span class="percentage high">25.81%</span></td>
+                    <td data-label="QA/PM">Kevin Jared</td>
+                    <td data-label="Total Revisadas">31</td>
+                    <td data-label="Total Rechazadas">8</td>
+                    <td data-label="Promedio Semanal">3.10</td>
+                    <td data-label="% Rechazo"><span class="percentage high">25.81%</span></td>
                 </tr>
                 <tr>
-                    <td>Teresita Del Niño</td>
-                    <td>34</td>
-                    <td>20</td>
-                    <td>3.40</td>
-                    <td><span class="percentage high">58.82%</span></td>
+                    <td data-label="QA/PM">Teresita Del Niño</td>
+                    <td data-label="Total Revisadas">34</td>
+                    <td data-label="Total Rechazadas">20</td>
+                    <td data-label="Promedio Semanal">3.40</td>
+                    <td data-label="% Rechazo"><span class="percentage high">58.82%</span></td>
                 </tr>
                 <tr>
-                    <td>Luis Erik Arenas</td>
-                    <td>1</td>
-                    <td>0</td>
-                    <td>0.10</td>
-                    <td><span class="percentage low">0.0%</span></td>
+                    <td data-label="QA/PM">Luis Erik Arenas</td>
+                    <td data-label="Total Revisadas">1</td>
+                    <td data-label="Total Rechazadas">0</td>
+                    <td data-label="Promedio Semanal">0.10</td>
+                    <td data-label="% Rechazo"><span class="percentage low">0.0%</span></td>
                 </tr>
                 <tr>
-                    <td>Sandy Ramírez</td>
-                    <td>23</td>
-                    <td>4</td>
-                    <td>2.30</td>
-                    <td><span class="percentage medium">17.39%</span></td>
+                    <td data-label="QA/PM">Sandy Ramírez</td>
+                    <td data-label="Total Revisadas">23</td>
+                    <td data-label="Total Rechazadas">4</td>
+                    <td data-label="Promedio Semanal">2.30</td>
+                    <td data-label="% Rechazo"><span class="percentage medium">17.39%</span></td>
                 </tr>
                 <tr>
-                    <td>Eduardo Piña</td>
-                    <td>62</td>
-                    <td>26</td>
-                    <td>6.20</td>
-                    <td><span class="percentage high">41.94%</span></td>
+                    <td data-label="QA/PM">Eduardo Piña</td>
+                    <td data-label="Total Revisadas">62</td>
+                    <td data-label="Total Rechazadas">26</td>
+                    <td data-label="Promedio Semanal">6.20</td>
+                    <td data-label="% Rechazo"><span class="percentage high">41.94%</span></td>
                 </tr>
                 <tr>
-                    <td>María Teresa González</td>
-                    <td>13</td>
-                    <td>8</td>
-                    <td>1.30</td>
-                    <td><span class="percentage high">61.54%</span></td>
+                    <td data-label="QA/PM">María Teresa González</td>
+                    <td data-label="Total Revisadas">13</td>
+                    <td data-label="Total Rechazadas">8</td>
+                    <td data-label="Promedio Semanal">1.30</td>
+                    <td data-label="% Rechazo"><span class="percentage high">61.54%</span></td>
                 </tr>
                 <tr>
-                    <td>Manuel Suárez</td>
-                    <td>10</td>
-                    <td>2</td>
-                    <td>1.00</td>
-                    <td><span class="percentage medium">20.0%</span></td>
+                    <td data-label="QA/PM">Manuel Suárez</td>
+                    <td data-label="Total Revisadas">10</td>
+                    <td data-label="Total Rechazadas">2</td>
+                    <td data-label="Promedio Semanal">1.00</td>
+                    <td data-label="% Rechazo"><span class="percentage medium">20.0%</span></td>
                 </tr>
                 </tbody>
             </table>
@@ -394,7 +549,7 @@
             <h2 class="section-title">Estadísticas Completas Web</h2>
 
             <div class="metric-group">
-                <h4>📊 Totales Históricos Web</h4>
+                <h4>🌐 Totales Históricos Web</h4>
                 <p><strong>Número de tarjetas revisadas:</strong> 174</p>
                 <p><strong>Número de tarjetas rechazadas:</strong> 51</p>
                 <p><strong>Número de tarjetas aceptadas:</strong> 102</p>
@@ -414,74 +569,74 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td>tarjetas semana 26mayo-30mayo</td>
-                    <td>15</td>
-                    <td>4</td>
-                    <td>0</td>
-                    <td><span class="percentage low">0.0%</span></td>
+                    <td data-label="Semana">tarjetas semana 26mayo-30mayo</td>
+                    <td data-label="Revisadas">15</td>
+                    <td data-label="Aceptadas">4</td>
+                    <td data-label="Rechazadas">0</td>
+                    <td data-label="% Rechazo"><span class="percentage low">0.0%</span></td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 19mayo-23mayo</td>
-                    <td>29</td>
-                    <td>14</td>
-                    <td>12</td>
-                    <td><span class="percentage high">41.38%</span></td>
+                    <td data-label="Semana">tarjetas semana 19mayo-23mayo</td>
+                    <td data-label="Revisadas">29</td>
+                    <td data-label="Aceptadas">14</td>
+                    <td data-label="Rechazadas">12</td>
+                    <td data-label="% Rechazo"><span class="percentage high">41.38%</span></td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 12mayo-16mayo</td>
-                    <td>8</td>
-                    <td>4</td>
-                    <td>4</td>
-                    <td><span class="percentage high">50.0%</span></td>
+                    <td data-label="Semana">tarjetas semana 12mayo-16mayo</td>
+                    <td data-label="Revisadas">8</td>
+                    <td data-label="Aceptadas">4</td>
+                    <td data-label="Rechazadas">4</td>
+                    <td data-label="% Rechazo"><span class="percentage high">50.0%</span></td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 5 mayo- 9 mayo</td>
-                    <td>6</td>
-                    <td>3</td>
-                    <td>3</td>
-                    <td><span class="percentage high">50.0%</span></td>
+                    <td data-label="Semana">tarjetas semana 5 mayo- 9 mayo</td>
+                    <td data-label="Revisadas">6</td>
+                    <td data-label="Aceptadas">3</td>
+                    <td data-label="Rechazadas">3</td>
+                    <td data-label="% Rechazo"><span class="percentage high">50.0%</span></td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 21 abr-25 abr</td>
-                    <td>16</td>
-                    <td>14</td>
-                    <td>2</td>
-                    <td><span class="percentage medium">12.5%</span></td>
+                    <td data-label="Semana">tarjetas semana 21 abr-25 abr</td>
+                    <td data-label="Revisadas">16</td>
+                    <td data-label="Aceptadas">14</td>
+                    <td data-label="Rechazadas">2</td>
+                    <td data-label="% Rechazo"><span class="percentage medium">12.5%</span></td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 28abr-2mayo</td>
-                    <td>19</td>
-                    <td>8</td>
-                    <td>11</td>
-                    <td><span class="percentage high">57.89%</span></td>
+                    <td data-label="Semana">tarjetas semana 28abr-2mayo</td>
+                    <td data-label="Revisadas">19</td>
+                    <td data-label="Aceptadas">8</td>
+                    <td data-label="Rechazadas">11</td>
+                    <td data-label="% Rechazo"><span class="percentage high">57.89%</span></td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 14abril-16 abri</td>
-                    <td>20</td>
-                    <td>14</td>
-                    <td>5</td>
-                    <td><span class="percentage high">25.0%</span></td>
+                    <td data-label="Semana">tarjetas semana 14abril-16 abri</td>
+                    <td data-label="Revisadas">20</td>
+                    <td data-label="Aceptadas">14</td>
+                    <td data-label="Rechazadas">5</td>
+                    <td data-label="% Rechazo"><span class="percentage high">25.0%</span></td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 7 abril-11abril</td>
-                    <td>17</td>
-                    <td>15</td>
-                    <td>2</td>
-                    <td><span class="percentage medium">11.76%</span></td>
+                    <td data-label="Semana">tarjetas semana 7 abril-11abril</td>
+                    <td data-label="Revisadas">17</td>
+                    <td data-label="Aceptadas">15</td>
+                    <td data-label="Rechazadas">2</td>
+                    <td data-label="% Rechazo"><span class="percentage medium">11.76%</span></td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 31mar- 4abril</td>
-                    <td>23</td>
-                    <td>13</td>
-                    <td>7</td>
-                    <td><span class="percentage high">30.43%</span></td>
+                    <td data-label="Semana">tarjetas semana 31mar- 4abril</td>
+                    <td data-label="Revisadas">23</td>
+                    <td data-label="Aceptadas">13</td>
+                    <td data-label="Rechazadas">7</td>
+                    <td data-label="% Rechazo"><span class="percentage high">30.43%</span></td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 24mar-28mar</td>
-                    <td>21</td>
-                    <td>13</td>
-                    <td>5</td>
-                    <td><span class="percentage high">23.81%</span></td>
+                    <td data-label="Semana">tarjetas semana 24mar-28mar</td>
+                    <td data-label="Revisadas">21</td>
+                    <td data-label="Aceptadas">13</td>
+                    <td data-label="Rechazadas">5</td>
+                    <td data-label="% Rechazo"><span class="percentage high">23.81%</span></td>
                 </tr>
                 </tbody>
             </table>
@@ -515,74 +670,74 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td>tarjetas semana 26mayo-30mayo</td>
-                    <td>9</td>
-                    <td>2</td>
-                    <td>0</td>
-                    <td><span class="percentage low">0.0%</span></td>
+                    <td data-label="Semana">tarjetas semana 26mayo-30mayo</td>
+                    <td data-label="Revisadas">9</td>
+                    <td data-label="Aceptadas">2</td>
+                    <td data-label="Rechazadas">0</td>
+                    <td data-label="% Rechazo"><span class="percentage low">0.0%</span></td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 19mayo-23mayo</td>
-                    <td>20</td>
-                    <td>8</td>
-                    <td>12</td>
-                    <td><span class="percentage high">60.0%</span></td>
+                    <td data-label="Semana">tarjetas semana 19mayo-23mayo</td>
+                    <td data-label="Revisadas">20</td>
+                    <td data-label="Aceptadas">8</td>
+                    <td data-label="Rechazadas">12</td>
+                    <td data-label="% Rechazo"><span class="percentage high">60.0%</span></td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 12mayo-16mayo</td>
-                    <td>27</td>
-                    <td>19</td>
-                    <td>5</td>
-                    <td><span class="percentage medium">18.52%</span></td>
+                    <td data-label="Semana">tarjetas semana 12mayo-16mayo</td>
+                    <td data-label="Revisadas">27</td>
+                    <td data-label="Aceptadas">19</td>
+                    <td data-label="Rechazadas">5</td>
+                    <td data-label="% Rechazo"><span class="percentage medium">18.52%</span></td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 5 mayo- 9 mayo</td>
-                    <td>5</td>
-                    <td>3</td>
-                    <td>2</td>
-                    <td><span class="percentage high">40.0%</span></td>
+                    <td data-label="Semana">tarjetas semana 5 mayo- 9 mayo</td>
+                    <td data-label="Revisadas">5</td>
+                    <td data-label="Aceptadas">3</td>
+                    <td data-label="Rechazadas">2</td>
+                    <td data-label="% Rechazo"><span class="percentage high">40.0%</span></td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 21 abr-25 abr</td>
-                    <td>17</td>
-                    <td>6</td>
-                    <td>11</td>
-                    <td><span class="percentage high">64.71%</span></td>
+                    <td data-label="Semana">tarjetas semana 21 abr-25 abr</td>
+                    <td data-label="Revisadas">17</td>
+                    <td data-label="Aceptadas">6</td>
+                    <td data-label="Rechazadas">11</td>
+                    <td data-label="% Rechazo"><span class="percentage high">64.71%</span></td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 28abr-2mayo</td>
-                    <td>19</td>
-                    <td>5</td>
-                    <td>11</td>
-                    <td><span class="percentage high">57.89%</span></td>
+                    <td data-label="Semana">tarjetas semana 28abr-2mayo</td>
+                    <td data-label="Revisadas">19</td>
+                    <td data-label="Aceptadas">5</td>
+                    <td data-label="Rechazadas">11</td>
+                    <td data-label="% Rechazo"><span class="percentage high">57.89%</span></td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 14abril-16 abri</td>
-                    <td>6</td>
-                    <td>2</td>
-                    <td>1</td>
-                    <td><span class="percentage medium">16.67%</span></td>
+                    <td data-label="Semana">tarjetas semana 14abril-16 abri</td>
+                    <td data-label="Revisadas">6</td>
+                    <td data-label="Aceptadas">2</td>
+                    <td data-label="Rechazadas">1</td>
+                    <td data-label="% Rechazo"><span class="percentage medium">16.67%</span></td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 7 abril-11abril</td>
-                    <td>11</td>
-                    <td>7</td>
-                    <td>0</td>
-                    <td><span class="percentage low">0.0%</span></td>
+                    <td data-label="Semana">tarjetas semana 7 abril-11abril</td>
+                    <td data-label="Revisadas">11</td>
+                    <td data-label="Aceptadas">7</td>
+                    <td data-label="Rechazadas">0</td>
+                    <td data-label="% Rechazo"><span class="percentage low">0.0%</span></td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 31mar- 4abril</td>
-                    <td>21</td>
-                    <td>3</td>
-                    <td>7</td>
-                    <td><span class="percentage high">33.33%</span></td>
+                    <td data-label="Semana">tarjetas semana 31mar- 4abril</td>
+                    <td data-label="Revisadas">21</td>
+                    <td data-label="Aceptadas">3</td>
+                    <td data-label="Rechazadas">7</td>
+                    <td data-label="% Rechazo"><span class="percentage high">33.33%</span></td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 24mar-28mar</td>
-                    <td>34</td>
-                    <td>18</td>
-                    <td>8</td>
-                    <td><span class="percentage high">23.53%</span></td>
+                    <td data-label="Semana">tarjetas semana 24mar-28mar</td>
+                    <td data-label="Revisadas">34</td>
+                    <td data-label="Aceptadas">18</td>
+                    <td data-label="Rechazadas">8</td>
+                    <td data-label="% Rechazo"><span class="percentage high">23.53%</span></td>
                 </tr>
                 </tbody>
             </table>
@@ -610,184 +765,184 @@
                 </thead>
                 <tbody>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Ricardo Yael', 'web')">
-                    <td>Ricardo Yael</td>
-                    <td>19</td>
-                    <td>13</td>
-                    <td>6</td>
-                    <td>1.9</td>
-                    <td><span class="percentage high">68.42%</span></td>
-                    <td>4</td>
+                    <td data-label="Desarrollador">Ricardo Yael</td>
+                    <td data-label="Total Tarjetas">19</td>
+                    <td data-label="Rechazadas">13</td>
+                    <td data-label="Aceptadas">6</td>
+                    <td data-label="Promedio Semanal (Histórico)">1.9</td>
+                    <td data-label="% Rechazo"><span class="percentage high">68.42%</span></td>
+                    <td data-label="Semanas Activo">4</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Alexis Mendoza', 'web')">
-                    <td>Alexis Mendoza</td>
-                    <td>17</td>
-                    <td>5</td>
-                    <td>11</td>
-                    <td>1.7</td>
-                    <td><span class="percentage high">29.41%</span></td>
-                    <td>7</td>
+                    <td data-label="Desarrollador">Alexis Mendoza</td>
+                    <td data-label="Total Tarjetas">17</td>
+                    <td data-label="Rechazadas">5</td>
+                    <td data-label="Aceptadas">11</td>
+                    <td data-label="Promedio Semanal (Histórico)">1.7</td>
+                    <td data-label="% Rechazo"><span class="percentage high">29.41%</span></td>
+                    <td data-label="Semanas Activo">7</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Brandon', 'web')">
-                    <td>Brandon</td>
-                    <td>16</td>
-                    <td>4</td>
-                    <td>10</td>
-                    <td>1.6</td>
-                    <td><span class="percentage high">25.0%</span></td>
-                    <td>6</td>
+                    <td data-label="Desarrollador">Brandon</td>
+                    <td data-label="Total Tarjetas">16</td>
+                    <td data-label="Rechazadas">4</td>
+                    <td data-label="Aceptadas">10</td>
+                    <td data-label="Promedio Semanal (Histórico)">1.6</td>
+                    <td data-label="% Rechazo"><span class="percentage high">25.0%</span></td>
+                    <td data-label="Semanas Activo">6</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Edwin', 'web')">
-                    <td>Edwin</td>
-                    <td>16</td>
-                    <td>3</td>
-                    <td>11</td>
-                    <td>1.6</td>
-                    <td><span class="percentage medium">18.75%</span></td>
-                    <td>7</td>
+                    <td data-label="Desarrollador">Edwin</td>
+                    <td data-label="Total Tarjetas">16</td>
+                    <td data-label="Rechazadas">3</td>
+                    <td data-label="Aceptadas">11</td>
+                    <td data-label="Promedio Semanal (Histórico)">1.6</td>
+                    <td data-label="% Rechazo"><span class="percentage medium">18.75%</span></td>
+                    <td data-label="Semanas Activo">7</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Janette', 'web')">
-                    <td>Janette</td>
-                    <td>13</td>
-                    <td>2</td>
-                    <td>7</td>
-                    <td>1.3</td>
-                    <td><span class="percentage medium">15.38%</span></td>
-                    <td>9</td>
+                    <td data-label="Desarrollador">Janette</td>
+                    <td data-label="Total Tarjetas">13</td>
+                    <td data-label="Rechazadas">2</td>
+                    <td data-label="Aceptadas">7</td>
+                    <td data-label="Promedio Semanal (Histórico)">1.3</td>
+                    <td data-label="% Rechazo"><span class="percentage medium">15.38%</span></td>
+                    <td data-label="Semanas Activo">9</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Iván Salinas', 'web')">
-                    <td>Iván Salinas</td>
-                    <td>13</td>
-                    <td>4</td>
-                    <td>8</td>
-                    <td>1.3</td>
-                    <td><span class="percentage high">30.77%</span></td>
-                    <td>7</td>
+                    <td data-label="Desarrollador">Iván Salinas</td>
+                    <td data-label="Total Tarjetas">13</td>
+                    <td data-label="Rechazadas">4</td>
+                    <td data-label="Aceptadas">8</td>
+                    <td data-label="Promedio Semanal (Histórico)">1.3</td>
+                    <td data-label="% Rechazo"><span class="percentage high">30.77%</span></td>
+                    <td data-label="Semanas Activo">7</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Efrén', 'web')">
-                    <td>Efrén</td>
-                    <td>11</td>
-                    <td>0</td>
-                    <td>8</td>
-                    <td>1.1</td>
-                    <td><span class="percentage low">0.0%</span></td>
-                    <td>7</td>
+                    <td data-label="Desarrollador">Efrén</td>
+                    <td data-label="Total Tarjetas">11</td>
+                    <td data-label="Rechazadas">0</td>
+                    <td data-label="Aceptadas">8</td>
+                    <td data-label="Promedio Semanal (Histórico)">1.1</td>
+                    <td data-label="% Rechazo"><span class="percentage low">0.0%</span></td>
+                    <td data-label="Semanas Activo">7</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Daniel', 'web')">
-                    <td>Daniel</td>
-                    <td>8</td>
-                    <td>2</td>
-                    <td>5</td>
-                    <td>0.8</td>
-                    <td><span class="percentage high">25.0%</span></td>
-                    <td>7</td>
+                    <td data-label="Desarrollador">Daniel</td>
+                    <td data-label="Total Tarjetas">8</td>
+                    <td data-label="Rechazadas">2</td>
+                    <td data-label="Aceptadas">5</td>
+                    <td data-label="Promedio Semanal (Histórico)">0.8</td>
+                    <td data-label="% Rechazo"><span class="percentage high">25.0%</span></td>
+                    <td data-label="Semanas Activo">7</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Iván Chávez', 'web')">
-                    <td>Iván Chávez</td>
-                    <td>7</td>
-                    <td>2</td>
-                    <td>3</td>
-                    <td>0.7</td>
-                    <td><span class="percentage high">28.57%</span></td>
-                    <td>5</td>
+                    <td data-label="Desarrollador">Iván Chávez</td>
+                    <td data-label="Total Tarjetas">7</td>
+                    <td data-label="Rechazadas">2</td>
+                    <td data-label="Aceptadas">3</td>
+                    <td data-label="Promedio Semanal (Histórico)">0.7</td>
+                    <td data-label="% Rechazo"><span class="percentage high">28.57%</span></td>
+                    <td data-label="Semanas Activo">5</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Gustavo Sandoval', 'web')">
-                    <td>Gustavo Sandoval</td>
-                    <td>7</td>
-                    <td>2</td>
-                    <td>5</td>
-                    <td>0.7</td>
-                    <td><span class="percentage high">28.57%</span></td>
-                    <td>4</td>
+                    <td data-label="Desarrollador">Gustavo Sandoval</td>
+                    <td data-label="Total Tarjetas">7</td>
+                    <td data-label="Rechazadas">2</td>
+                    <td data-label="Aceptadas">5</td>
+                    <td data-label="Promedio Semanal (Histórico)">0.7</td>
+                    <td data-label="% Rechazo"><span class="percentage high">28.57%</span></td>
+                    <td data-label="Semanas Activo">4</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Desarrollador Desconocido', 'web')">
-                    <td>Desarrollador Desconocido</td>
-                    <td>7</td>
-                    <td>4</td>
-                    <td>3</td>
-                    <td>0.7</td>
-                    <td><span class="percentage high">57.14%</span></td>
-                    <td>4</td>
+                    <td data-label="Desarrollador">Desarrollador Desconocido</td>
+                    <td data-label="Total Tarjetas">7</td>
+                    <td data-label="Rechazadas">4</td>
+                    <td data-label="Aceptadas">3</td>
+                    <td data-label="Promedio Semanal (Histórico)">0.7</td>
+                    <td data-label="% Rechazo"><span class="percentage high">57.14%</span></td>
+                    <td data-label="Semanas Activo">4</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Juan Camilo', 'web')">
-                    <td>Juan Camilo</td>
-                    <td>6</td>
-                    <td>1</td>
-                    <td>4</td>
-                    <td>0.6</td>
-                    <td><span class="percentage medium">16.67%</span></td>
-                    <td>5</td>
+                    <td data-label="Desarrollador">Juan Camilo</td>
+                    <td data-label="Total Tarjetas">6</td>
+                    <td data-label="Rechazadas">1</td>
+                    <td data-label="Aceptadas">4</td>
+                    <td data-label="Promedio Semanal (Histórico)">0.6</td>
+                    <td data-label="% Rechazo"><span class="percentage medium">16.67%</span></td>
+                    <td data-label="Semanas Activo">5</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Luis Ramos', 'web')">
-                    <td>Luis Ramos</td>
-                    <td>5</td>
-                    <td>1</td>
-                    <td>4</td>
-                    <td>0.5</td>
-                    <td><span class="percentage medium">20.0%</span></td>
-                    <td>4</td>
+                    <td data-label="Desarrollador">Luis Ramos</td>
+                    <td data-label="Total Tarjetas">5</td>
+                    <td data-label="Rechazadas">1</td>
+                    <td data-label="Aceptadas">4</td>
+                    <td data-label="Promedio Semanal (Histórico)">0.5</td>
+                    <td data-label="% Rechazo"><span class="percentage medium">20.0%</span></td>
+                    <td data-label="Semanas Activo">4</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Luis Cabrera', 'web')">
-                    <td>Luis Cabrera</td>
-                    <td>4</td>
-                    <td>0</td>
-                    <td>4</td>
-                    <td>0.4</td>
-                    <td><span class="percentage low">0.0%</span></td>
-                    <td>3</td>
+                    <td data-label="Desarrollador">Luis Cabrera</td>
+                    <td data-label="Total Tarjetas">4</td>
+                    <td data-label="Rechazadas">0</td>
+                    <td data-label="Aceptadas">4</td>
+                    <td data-label="Promedio Semanal (Histórico)">0.4</td>
+                    <td data-label="% Rechazo"><span class="percentage low">0.0%</span></td>
+                    <td data-label="Semanas Activo">3</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Ezequiel', 'web')">
-                    <td>Ezequiel</td>
-                    <td>4</td>
-                    <td>0</td>
-                    <td>2</td>
-                    <td>0.4</td>
-                    <td><span class="percentage low">0.0%</span></td>
-                    <td>3</td>
+                    <td data-label="Desarrollador">Ezequiel</td>
+                    <td data-label="Total Tarjetas">4</td>
+                    <td data-label="Rechazadas">0</td>
+                    <td data-label="Aceptadas">2</td>
+                    <td data-label="Promedio Semanal (Histórico)">0.4</td>
+                    <td data-label="% Rechazo"><span class="percentage low">0.0%</span></td>
+                    <td data-label="Semanas Activo">3</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Miguel Camargo', 'web')">
-                    <td>Miguel Camargo</td>
-                    <td>3</td>
-                    <td>1</td>
-                    <td>0</td>
-                    <td>0.3</td>
-                    <td><span class="percentage high">33.33%</span></td>
-                    <td>3</td>
+                    <td data-label="Desarrollador">Miguel Camargo</td>
+                    <td data-label="Total Tarjetas">3</td>
+                    <td data-label="Rechazadas">1</td>
+                    <td data-label="Aceptadas">0</td>
+                    <td data-label="Promedio Semanal (Histórico)">0.3</td>
+                    <td data-label="% Rechazo"><span class="percentage high">33.33%</span></td>
+                    <td data-label="Semanas Activo">3</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('David Carrillo', 'web')">
-                    <td>David Carrillo</td>
-                    <td>3</td>
-                    <td>3</td>
-                    <td>0</td>
-                    <td>0.3</td>
-                    <td><span class="percentage high">100.0%</span></td>
-                    <td>2</td>
+                    <td data-label="Desarrollador">David Carrillo</td>
+                    <td data-label="Total Tarjetas">3</td>
+                    <td data-label="Rechazadas">3</td>
+                    <td data-label="Aceptadas">0</td>
+                    <td data-label="Promedio Semanal (Histórico)">0.3</td>
+                    <td data-label="% Rechazo"><span class="percentage high">100.0%</span></td>
+                    <td data-label="Semanas Activo">2</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Juan Carlos Teofilo', 'web')">
-                    <td>Juan Carlos Teofilo</td>
-                    <td>3</td>
-                    <td>1</td>
-                    <td>2</td>
-                    <td>0.3</td>
-                    <td><span class="percentage high">33.33%</span></td>
-                    <td>2</td>
+                    <td data-label="Desarrollador">Juan Carlos Teofilo</td>
+                    <td data-label="Total Tarjetas">3</td>
+                    <td data-label="Rechazadas">1</td>
+                    <td data-label="Aceptadas">2</td>
+                    <td data-label="Promedio Semanal (Histórico)">0.3</td>
+                    <td data-label="% Rechazo"><span class="percentage high">33.33%</span></td>
+                    <td data-label="Semanas Activo">2</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Sinuhé', 'web')">
-                    <td>Sinuhé</td>
-                    <td>3</td>
-                    <td>0</td>
-                    <td>3</td>
-                    <td>0.3</td>
-                    <td><span class="percentage low">0.0%</span></td>
-                    <td>2</td>
+                    <td data-label="Desarrollador">Sinuhé</td>
+                    <td data-label="Total Tarjetas">3</td>
+                    <td data-label="Rechazadas">0</td>
+                    <td data-label="Aceptadas">3</td>
+                    <td data-label="Promedio Semanal (Histórico)">0.3</td>
+                    <td data-label="% Rechazo"><span class="percentage low">0.0%</span></td>
+                    <td data-label="Semanas Activo">2</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Fernando Cruz', 'web')">
-                    <td>Fernando Cruz</td>
-                    <td>2</td>
-                    <td>0</td>
-                    <td>2</td>
-                    <td>0.2</td>
-                    <td><span class="percentage low">0.0%</span></td>
-                    <td>2</td>
+                    <td data-label="Desarrollador">Fernando Cruz</td>
+                    <td data-label="Total Tarjetas">2</td>
+                    <td data-label="Rechazadas">0</td>
+                    <td data-label="Aceptadas">2</td>
+                    <td data-label="Promedio Semanal (Histórico)">0.2</td>
+                    <td data-label="% Rechazo"><span class="percentage low">0.0%</span></td>
+                    <td data-label="Semanas Activo">2</td>
                 </tr>
                 </tbody>
             </table>
@@ -808,112 +963,112 @@
                 </thead>
                 <tbody>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Alex Galindo', 'app')">
-                    <td>Alex Galindo</td>
-                    <td>53</td>
-                    <td>21</td>
-                    <td>20</td>
-                    <td>5.3</td>
-                    <td><span class="percentage high">39.62%</span></td>
-                    <td>7</td>
+                    <td data-label="Desarrollador">Alex Galindo</td>
+                    <td data-label="Total Tarjetas">53</td>
+                    <td data-label="Rechazadas">21</td>
+                    <td data-label="Aceptadas">20</td>
+                    <td data-label="Promedio Semanal (Histórico)">5.3</td>
+                    <td data-label="% Rechazo"><span class="percentage high">39.62%</span></td>
+                    <td data-label="Semanas Activo">7</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Jesús Tirado', 'app')">
-                    <td>Jesús Tirado</td>
-                    <td>37</td>
-                    <td>5</td>
-                    <td>22</td>
-                    <td>3.7</td>
-                    <td><span class="percentage medium">13.51%</span></td>
-                    <td>8</td>
+                    <td data-label="Desarrollador">Jesús Tirado</td>
+                    <td data-label="Total Tarjetas">37</td>
+                    <td data-label="Rechazadas">5</td>
+                    <td data-label="Aceptadas">22</td>
+                    <td data-label="Promedio Semanal (Histórico)">3.7</td>
+                    <td data-label="% Rechazo"><span class="percentage medium">13.51%</span></td>
+                    <td data-label="Semanas Activo">8</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Rodrigo Vidal', 'app')">
-                    <td>Rodrigo Vidal</td>
-                    <td>23</td>
-                    <td>9</td>
-                    <td>11</td>
-                    <td>2.3</td>
-                    <td><span class="percentage high">39.13%</span></td>
-                    <td>6</td>
+                    <td data-label="Desarrollador">Rodrigo Vidal</td>
+                    <td data-label="Total Tarjetas">23</td>
+                    <td data-label="Rechazadas">9</td>
+                    <td data-label="Aceptadas">11</td>
+                    <td data-label="Promedio Semanal (Histórico)">2.3</td>
+                    <td data-label="% Rechazo"><span class="percentage high">39.13%</span></td>
+                    <td data-label="Semanas Activo">6</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Luis Fernando', 'app')">
-                    <td>Luis Fernando</td>
-                    <td>17</td>
-                    <td>4</td>
-                    <td>6</td>
-                    <td>1.7</td>
-                    <td><span class="percentage high">23.53%</span></td>
-                    <td>7</td>
+                    <td data-label="Desarrollador">Luis Fernando</td>
+                    <td data-label="Total Tarjetas">17</td>
+                    <td data-label="Rechazadas">4</td>
+                    <td data-label="Aceptadas">6</td>
+                    <td data-label="Promedio Semanal (Histórico)">1.7</td>
+                    <td data-label="% Rechazo"><span class="percentage high">23.53%</span></td>
+                    <td data-label="Semanas Activo">7</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Felipe Romano', 'app')">
-                    <td>Felipe Romano</td>
-                    <td>15</td>
-                    <td>12</td>
-                    <td>2</td>
-                    <td>1.5</td>
-                    <td><span class="percentage high">80.0%</span></td>
-                    <td>3</td>
+                    <td data-label="Desarrollador">Felipe Romano</td>
+                    <td data-label="Total Tarjetas">15</td>
+                    <td data-label="Rechazadas">12</td>
+                    <td data-label="Aceptadas">2</td>
+                    <td data-label="Promedio Semanal (Histórico)">1.5</td>
+                    <td data-label="% Rechazo"><span class="percentage high">80.0%</span></td>
+                    <td data-label="Semanas Activo">3</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Rodrigo Martín', 'app')">
-                    <td>Rodrigo Martín</td>
-                    <td>6</td>
-                    <td>2</td>
-                    <td>3</td>
-                    <td>0.6</td>
-                    <td><span class="percentage high">33.33%</span></td>
-                    <td>3</td>
+                    <td data-label="Desarrollador">Rodrigo Martín</td>
+                    <td data-label="Total Tarjetas">6</td>
+                    <td data-label="Rechazadas">2</td>
+                    <td data-label="Aceptadas">3</td>
+                    <td data-label="Promedio Semanal (Histórico)">0.6</td>
+                    <td data-label="% Rechazo"><span class="percentage high">33.33%</span></td>
+                    <td data-label="Semanas Activo">3</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Arturo Hernández', 'app')">
-                    <td>Arturo Hernández</td>
-                    <td>5</td>
-                    <td>3</td>
-                    <td>1</td>
-                    <td>0.5</td>
-                    <td><span class="percentage high">60.0%</span></td>
-                    <td>3</td>
+                    <td data-label="Desarrollador">Arturo Hernández</td>
+                    <td data-label="Total Tarjetas">5</td>
+                    <td data-label="Rechazadas">3</td>
+                    <td data-label="Aceptadas">1</td>
+                    <td data-label="Promedio Semanal (Histórico)">0.5</td>
+                    <td data-label="% Rechazo"><span class="percentage high">60.0%</span></td>
+                    <td data-label="Semanas Activo">3</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Desarrollador Desconocido', 'app')">
-                    <td>Desarrollador Desconocido</td>
-                    <td>4</td>
-                    <td>1</td>
-                    <td>1</td>
-                    <td>0.4</td>
-                    <td><span class="percentage high">25.0%</span></td>
-                    <td>2</td>
+                    <td data-label="Desarrollador">Desarrollador Desconocido</td>
+                    <td data-label="Total Tarjetas">4</td>
+                    <td data-label="Rechazadas">1</td>
+                    <td data-label="Aceptadas">1</td>
+                    <td data-label="Promedio Semanal (Histórico)">0.4</td>
+                    <td data-label="% Rechazo"><span class="percentage high">25.0%</span></td>
+                    <td data-label="Semanas Activo">2</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Martin Reyes', 'app')">
-                    <td>Martin Reyes</td>
-                    <td>4</td>
-                    <td>0</td>
-                    <td>2</td>
-                    <td>0.4</td>
-                    <td><span class="percentage low">0.0%</span></td>
-                    <td>1</td>
+                    <td data-label="Desarrollador">Martin Reyes</td>
+                    <td data-label="Total Tarjetas">4</td>
+                    <td data-label="Rechazadas">0</td>
+                    <td data-label="Aceptadas">2</td>
+                    <td data-label="Promedio Semanal (Histórico)">0.4</td>
+                    <td data-label="% Rechazo"><span class="percentage low">0.0%</span></td>
+                    <td data-label="Semanas Activo">1</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Pablo Solorzano', 'app')">
-                    <td>Pablo Solorzano</td>
-                    <td>3</td>
-                    <td>0</td>
-                    <td>3</td>
-                    <td>0.3</td>
-                    <td><span class="percentage low">0.0%</span></td>
-                    <td>2</td>
+                    <td data-label="Desarrollador">Pablo Solorzano</td>
+                    <td data-label="Total Tarjetas">3</td>
+                    <td data-label="Rechazadas">0</td>
+                    <td data-label="Aceptadas">3</td>
+                    <td data-label="Promedio Semanal (Histórico)">0.3</td>
+                    <td data-label="% Rechazo"><span class="percentage low">0.0%</span></td>
+                    <td data-label="Semanas Activo">2</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Ricardo Yael', 'app')">
-                    <td>Ricardo Yael</td>
-                    <td>1</td>
-                    <td>0</td>
-                    <td>1</td>
-                    <td>0.1</td>
-                    <td><span class="percentage low">0.0%</span></td>
-                    <td>1</td>
+                    <td data-label="Desarrollador">Ricardo Yael</td>
+                    <td data-label="Total Tarjetas">1</td>
+                    <td data-label="Rechazadas">0</td>
+                    <td data-label="Aceptadas">1</td>
+                    <td data-label="Promedio Semanal (Histórico)">0.1</td>
+                    <td data-label="% Rechazo"><span class="percentage low">0.0%</span></td>
+                    <td data-label="Semanas Activo">1</td>
                 </tr>
                 <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('Guillermo Valdez', 'app')">
-                    <td>Guillermo Valdez</td>
-                    <td>1</td>
-                    <td>0</td>
-                    <td>1</td>
-                    <td>0.1</td>
-                    <td><span class="percentage low">0.0%</span></td>
-                    <td>1</td>
+                    <td data-label="Desarrollador">Guillermo Valdez</td>
+                    <td data-label="Total Tarjetas">1</td>
+                    <td data-label="Rechazadas">0</td>
+                    <td data-label="Aceptadas">1</td>
+                    <td data-label="Promedio Semanal (Histórico)">0.1</td>
+                    <td data-label="% Rechazo"><span class="percentage low">0.0%</span></td>
+                    <td data-label="Semanas Activo">1</td>
                 </tr>
                 </tbody>
             </table>
@@ -968,84 +1123,84 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td>tarjetas semana 26mayo-30mayo</td>
-                    <td>8</td>
-                    <td>17</td>
-                    <td>0</td>
-                    <td>15</td>
-                    <td>9</td>
+                    <td data-label="Semana">tarjetas semana 26mayo-30mayo</td>
+                    <td data-label="Alta">8</td>
+                    <td data-label="Media">17</td>
+                    <td data-label="Baja">0</td>
+                    <td data-label="Web">15</td>
+                    <td data-label="App">9</td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 19mayo-23mayo</td>
-                    <td>25</td>
-                    <td>24</td>
-                    <td>0</td>
-                    <td>29</td>
-                    <td>20</td>
+                    <td data-label="Semana">tarjetas semana 19mayo-23mayo</td>
+                    <td data-label="Alta">25</td>
+                    <td data-label="Media">24</td>
+                    <td data-label="Baja">0</td>
+                    <td data-label="Web">29</td>
+                    <td data-label="App">20</td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 12mayo-16mayo</td>
-                    <td>25</td>
-                    <td>10</td>
-                    <td>0</td>
-                    <td>8</td>
-                    <td>27</td>
+                    <td data-label="Semana">tarjetas semana 12mayo-16mayo</td>
+                    <td data-label="Alta">25</td>
+                    <td data-label="Media">10</td>
+                    <td data-label="Baja">0</td>
+                    <td data-label="Web">8</td>
+                    <td data-label="App">27</td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 5 mayo- 9 mayo</td>
-                    <td>14</td>
-                    <td>3</td>
-                    <td>0</td>
-                    <td>6</td>
-                    <td>5</td>
+                    <td data-label="Semana">tarjetas semana 5 mayo- 9 mayo</td>
+                    <td data-label="Alta">14</td>
+                    <td data-label="Media">3</td>
+                    <td data-label="Baja">0</td>
+                    <td data-label="Web">6</td>
+                    <td data-label="App">5</td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 21 abr-25 abr</td>
-                    <td>28</td>
-                    <td>6</td>
-                    <td>0</td>
-                    <td>16</td>
-                    <td>17</td>
+                    <td data-label="Semana">tarjetas semana 21 abr-25 abr</td>
+                    <td data-label="Alta">28</td>
+                    <td data-label="Media">6</td>
+                    <td data-label="Baja">0</td>
+                    <td data-label="Web">16</td>
+                    <td data-label="App">17</td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 28abr-2mayo</td>
-                    <td>23</td>
-                    <td>15</td>
-                    <td>0</td>
-                    <td>19</td>
-                    <td>19</td>
+                    <td data-label="Semana">tarjetas semana 28abr-2mayo</td>
+                    <td data-label="Alta">23</td>
+                    <td data-label="Media">15</td>
+                    <td data-label="Baja">0</td>
+                    <td data-label="Web">19</td>
+                    <td data-label="App">19</td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 14abril-16 abri</td>
-                    <td>21</td>
-                    <td>5</td>
-                    <td>0</td>
-                    <td>20</td>
-                    <td>6</td>
+                    <td data-label="Semana">tarjetas semana 14abril-16 abri</td>
+                    <td data-label="Alta">21</td>
+                    <td data-label="Media">5</td>
+                    <td data-label="Baja">0</td>
+                    <td data-label="Web">20</td>
+                    <td data-label="App">6</td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 7 abril-11abril</td>
-                    <td>16</td>
-                    <td>11</td>
-                    <td>1</td>
-                    <td>17</td>
-                    <td>11</td>
+                    <td data-label="Semana">tarjetas semana 7 abril-11abril</td>
+                    <td data-label="Alta">16</td>
+                    <td data-label="Media">11</td>
+                    <td data-label="Baja">1</td>
+                    <td data-label="Web">17</td>
+                    <td data-label="App">11</td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 31mar- 4abril</td>
-                    <td>42</td>
-                    <td>3</td>
-                    <td>0</td>
-                    <td>23</td>
-                    <td>21</td>
+                    <td data-label="Semana">tarjetas semana 31mar- 4abril</td>
+                    <td data-label="Alta">42</td>
+                    <td data-label="Media">3</td>
+                    <td data-label="Baja">0</td>
+                    <td data-label="Web">23</td>
+                    <td data-label="App">21</td>
                 </tr>
                 <tr>
-                    <td>tarjetas semana 24mar-28mar</td>
-                    <td>46</td>
-                    <td>7</td>
-                    <td>2</td>
-                    <td>21</td>
-                    <td>34</td>
+                    <td data-label="Semana">tarjetas semana 24mar-28mar</td>
+                    <td data-label="Alta">46</td>
+                    <td data-label="Media">7</td>
+                    <td data-label="Baja">2</td>
+                    <td data-label="Web">21</td>
+                    <td data-label="App">34</td>
                 </tr>
                 </tbody>
             </table>
@@ -1074,279 +1229,279 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td>CTV´S Y UX</td>
-                    <td>58</td>
-                    <td>17</td>
-                    <td>41</td>
-                    <td>27</td>
-                    <td>23</td>
-                    <td>11.6</td>
-                    <td>4.6</td>
-                    <td>5.4</td>
+                    <td data-label="Sitio">CTV´S Y UX</td>
+                    <td data-label="Total">58</td>
+                    <td data-label="Web">17</td>
+                    <td data-label="App">41</td>
+                    <td data-label="Aceptadas">27</td>
+                    <td data-label="Rechazadas">23</td>
+                    <td data-label="Promedio/Semana">11.6</td>
+                    <td data-label="Promedio Rechazadas/Semana">4.6</td>
+                    <td data-label="Promedio Aceptadas/Semana">5.4</td>
                 </tr>
                 <tr>
-                    <td>Azteca Noticias</td>
-                    <td>27</td>
-                    <td>8</td>
-                    <td>19</td>
-                    <td>17</td>
-                    <td>2</td>
-                    <td>3.0</td>
-                    <td>0.22</td>
-                    <td>1.89</td>
+                    <td data-label="Sitio">Azteca Noticias</td>
+                    <td data-label="Total">27</td>
+                    <td data-label="Web">8</td>
+                    <td data-label="App">19</td>
+                    <td data-label="Aceptadas">17</td>
+                    <td data-label="Rechazadas">2</td>
+                    <td data-label="Promedio/Semana">3.0</td>
+                    <td data-label="Promedio Rechazadas/Semana">0.22</td>
+                    <td data-label="Promedio Aceptadas/Semana">1.89</td>
                 </tr>
                 <tr>
-                    <td>Entretenimiento CTV´s</td>
-                    <td>24</td>
-                    <td>6</td>
-                    <td>18</td>
-                    <td>7</td>
-                    <td>1</td>
-                    <td>12.0</td>
-                    <td>0.5</td>
-                    <td>3.5</td>
+                    <td data-label="Sitio">Entretenimiento CTV´s</td>
+                    <td data-label="Total">24</td>
+                    <td data-label="Web">6</td>
+                    <td data-label="App">18</td>
+                    <td data-label="Aceptadas">7</td>
+                    <td data-label="Rechazadas">1</td>
+                    <td data-label="Promedio/Semana">12.0</td>
+                    <td data-label="Promedio Rechazadas/Semana">0.5</td>
+                    <td data-label="Promedio Aceptadas/Semana">3.5</td>
                 </tr>
                 <tr>
-                    <td>Adops</td>
-                    <td>23</td>
-                    <td>23</td>
-                    <td>0</td>
-                    <td>15</td>
-                    <td>2</td>
-                    <td>2.56</td>
-                    <td>0.22</td>
-                    <td>1.67</td>
+                    <td data-label="Sitio">Adops</td>
+                    <td data-label="Total">23</td>
+                    <td data-label="Web">23</td>
+                    <td data-label="App">0</td>
+                    <td data-label="Aceptadas">15</td>
+                    <td data-label="Rechazadas">2</td>
+                    <td data-label="Promedio/Semana">2.56</td>
+                    <td data-label="Promedio Rechazadas/Semana">0.22</td>
+                    <td data-label="Promedio Aceptadas/Semana">1.67</td>
                 </tr>
                 <tr>
-                    <td>SEO</td>
-                    <td>23</td>
-                    <td>22</td>
-                    <td>0</td>
-                    <td>17</td>
-                    <td>6</td>
-                    <td>3.83</td>
-                    <td>1.0</td>
-                    <td>2.83</td>
+                    <td data-label="Sitio">SEO</td>
+                    <td data-label="Total">23</td>
+                    <td data-label="Web">22</td>
+                    <td data-label="App">0</td>
+                    <td data-label="Aceptadas">17</td>
+                    <td data-label="Rechazadas">6</td>
+                    <td data-label="Promedio/Semana">3.83</td>
+                    <td data-label="Promedio Rechazadas/Semana">1.0</td>
+                    <td data-label="Promedio Aceptadas/Semana">2.83</td>
                 </tr>
                 <tr>
-                    <td>Data-Log-in</td>
-                    <td>21</td>
-                    <td>18</td>
-                    <td>3</td>
-                    <td>12</td>
-                    <td>9</td>
-                    <td>3.5</td>
-                    <td>1.5</td>
-                    <td>2.0</td>
+                    <td data-label="Sitio">Data-Log-in</td>
+                    <td data-label="Total">21</td>
+                    <td data-label="Web">18</td>
+                    <td data-label="App">3</td>
+                    <td data-label="Aceptadas">12</td>
+                    <td data-label="Rechazadas">9</td>
+                    <td data-label="Promedio/Semana">3.5</td>
+                    <td data-label="Promedio Rechazadas/Semana">1.5</td>
+                    <td data-label="Promedio Aceptadas/Semana">2.0</td>
                 </tr>
                 <tr>
-                    <td>ADN40</td>
-                    <td>20</td>
-                    <td>3</td>
-                    <td>15</td>
-                    <td>5</td>
-                    <td>10</td>
-                    <td>4.0</td>
-                    <td>2.0</td>
-                    <td>1.0</td>
+                    <td data-label="Sitio">ADN40</td>
+                    <td data-label="Total">20</td>
+                    <td data-label="Web">3</td>
+                    <td data-label="App">15</td>
+                    <td data-label="Aceptadas">5</td>
+                    <td data-label="Rechazadas">10</td>
+                    <td data-label="Promedio/Semana">4.0</td>
+                    <td data-label="Promedio Rechazadas/Semana">2.0</td>
+                    <td data-label="Promedio Aceptadas/Semana">1.0</td>
                 </tr>
                 <tr>
-                    <td>SEO-LSN</td>
-                    <td>19</td>
-                    <td>12</td>
-                    <td>1</td>
-                    <td>7</td>
-                    <td>4</td>
-                    <td>4.75</td>
-                    <td>1.0</td>
-                    <td>1.75</td>
+                    <td data-label="Sitio">SEO-LSN</td>
+                    <td data-label="Total">19</td>
+                    <td data-label="Web">12</td>
+                    <td data-label="App">1</td>
+                    <td data-label="Aceptadas">7</td>
+                    <td data-label="Rechazadas">4</td>
+                    <td data-label="Promedio/Semana">4.75</td>
+                    <td data-label="Promedio Rechazadas/Semana">1.0</td>
+                    <td data-label="Promedio Aceptadas/Semana">1.75</td>
                 </tr>
                 <tr>
-                    <td>adn40</td>
-                    <td>13</td>
-                    <td>0</td>
-                    <td>13</td>
-                    <td>3</td>
-                    <td>6</td>
-                    <td>6.5</td>
-                    <td>3.0</td>
-                    <td>1.5</td>
+                    <td data-label="Sitio">adn40</td>
+                    <td data-label="Total">13</td>
+                    <td data-label="Web">0</td>
+                    <td data-label="App">13</td>
+                    <td data-label="Aceptadas">3</td>
+                    <td data-label="Rechazadas">6</td>
+                    <td data-label="Promedio/Semana">6.5</td>
+                    <td data-label="Promedio Rechazadas/Semana">3.0</td>
+                    <td data-label="Promedio Aceptadas/Semana">1.5</td>
                 </tr>
                 <tr>
-                    <td>Noticias-LSN</td>
-                    <td>12</td>
-                    <td>12</td>
-                    <td>0</td>
-                    <td>7</td>
-                    <td>5</td>
-                    <td>12.0</td>
-                    <td>5.0</td>
-                    <td>7.0</td>
+                    <td data-label="Sitio">Noticias-LSN</td>
+                    <td data-label="Total">12</td>
+                    <td data-label="Web">12</td>
+                    <td data-label="App">0</td>
+                    <td data-label="Aceptadas">7</td>
+                    <td data-label="Rechazadas">5</td>
+                    <td data-label="Promedio/Semana">12.0</td>
+                    <td data-label="Promedio Rechazadas/Semana">5.0</td>
+                    <td data-label="Promedio Aceptadas/Semana">7.0</td>
                 </tr>
                 <tr>
-                    <td>Data-log-in</td>
-                    <td>12</td>
-                    <td>9</td>
-                    <td>3</td>
-                    <td>3</td>
-                    <td>9</td>
-                    <td>6.0</td>
-                    <td>4.5</td>
-                    <td>1.5</td>
+                    <td data-label="Sitio">Data-log-in</td>
+                    <td data-label="Total">12</td>
+                    <td data-label="Web">9</td>
+                    <td data-label="App">3</td>
+                    <td data-label="Aceptadas">3</td>
+                    <td data-label="Rechazadas">9</td>
+                    <td data-label="Promedio/Semana">6.0</td>
+                    <td data-label="Promedio Rechazadas/Semana">4.5</td>
+                    <td data-label="Promedio Aceptadas/Semana">1.5</td>
                 </tr>
                 <tr>
-                    <td>Locales</td>
-                    <td>11</td>
-                    <td>11</td>
-                    <td>0</td>
-                    <td>7</td>
-                    <td>2</td>
-                    <td>2.2</td>
-                    <td>0.4</td>
-                    <td>1.4</td>
+                    <td data-label="Sitio">Locales</td>
+                    <td data-label="Total">11</td>
+                    <td data-label="Web">11</td>
+                    <td data-label="App">0</td>
+                    <td data-label="Aceptadas">7</td>
+                    <td data-label="Rechazadas">2</td>
+                    <td data-label="Promedio/Semana">2.2</td>
+                    <td data-label="Promedio Rechazadas/Semana">0.4</td>
+                    <td data-label="Promedio Aceptadas/Semana">1.4</td>
                 </tr>
                 <tr>
-                    <td>Roku</td>
-                    <td>10</td>
-                    <td>0</td>
-                    <td>10</td>
-                    <td>10</td>
-                    <td>0</td>
-                    <td>10.0</td>
-                    <td>0.0</td>
-                    <td>10.0</td>
+                    <td data-label="Sitio">Roku</td>
+                    <td data-label="Total">10</td>
+                    <td data-label="Web">0</td>
+                    <td data-label="App">10</td>
+                    <td data-label="Aceptadas">10</td>
+                    <td data-label="Rechazadas">0</td>
+                    <td data-label="Promedio/Semana">10.0</td>
+                    <td data-label="Promedio Rechazadas/Semana">0.0</td>
+                    <td data-label="Promedio Aceptadas/Semana">10.0</td>
                 </tr>
                 <tr>
-                    <td>Revista Central</td>
-                    <td>8</td>
-                    <td>8</td>
-                    <td>0</td>
-                    <td>6</td>
-                    <td>2</td>
-                    <td>2.0</td>
-                    <td>0.5</td>
-                    <td>1.5</td>
+                    <td data-label="Sitio">Revista Central</td>
+                    <td data-label="Total">8</td>
+                    <td data-label="Web">8</td>
+                    <td data-label="App">0</td>
+                    <td data-label="Aceptadas">6</td>
+                    <td data-label="Rechazadas">2</td>
+                    <td data-label="Promedio/Semana">2.0</td>
+                    <td data-label="Promedio Rechazadas/Semana">0.5</td>
+                    <td data-label="Promedio Aceptadas/Semana">1.5</td>
                 </tr>
                 <tr>
-                    <td>Azteca Deportes</td>
-                    <td>8</td>
-                    <td>2</td>
-                    <td>6</td>
-                    <td>3</td>
-                    <td>3</td>
-                    <td>2.0</td>
-                    <td>0.75</td>
-                    <td>0.75</td>
+                    <td data-label="Sitio">Azteca Deportes</td>
+                    <td data-label="Total">8</td>
+                    <td data-label="Web">2</td>
+                    <td data-label="App">6</td>
+                    <td data-label="Aceptadas">3</td>
+                    <td data-label="Rechazadas">3</td>
+                    <td data-label="Promedio/Semana">2.0</td>
+                    <td data-label="Promedio Rechazadas/Semana">0.75</td>
+                    <td data-label="Promedio Aceptadas/Semana">0.75</td>
                 </tr>
                 <tr>
-                    <td>SEO LSN</td>
-                    <td>7</td>
-                    <td>7</td>
-                    <td>0</td>
-                    <td>4</td>
-                    <td>3</td>
-                    <td>3.5</td>
-                    <td>1.5</td>
-                    <td>2.0</td>
+                    <td data-label="Sitio">SEO LSN</td>
+                    <td data-label="Total">7</td>
+                    <td data-label="Web">7</td>
+                    <td data-label="App">0</td>
+                    <td data-label="Aceptadas">4</td>
+                    <td data-label="Rechazadas">3</td>
+                    <td data-label="Promedio/Semana">3.5</td>
+                    <td data-label="Promedio Rechazadas/Semana">1.5</td>
+                    <td data-label="Promedio Aceptadas/Semana">2.0</td>
                 </tr>
                 <tr>
-                    <td>Entretenimiento -app</td>
-                    <td>5</td>
-                    <td>0</td>
-                    <td>5</td>
-                    <td>1</td>
-                    <td>4</td>
-                    <td>5.0</td>
-                    <td>4.0</td>
-                    <td>1.0</td>
+                    <td data-label="Sitio">Entretenimiento -app</td>
+                    <td data-label="Total">5</td>
+                    <td data-label="Web">0</td>
+                    <td data-label="App">5</td>
+                    <td data-label="Aceptadas">1</td>
+                    <td data-label="Rechazadas">4</td>
+                    <td data-label="Promedio/Semana">5.0</td>
+                    <td data-label="Promedio Rechazadas/Semana">4.0</td>
+                    <td data-label="Promedio Aceptadas/Semana">1.0</td>
                 </tr>
                 <tr>
-                    <td>ADN40-APP</td>
-                    <td>5</td>
-                    <td>0</td>
-                    <td>5</td>
-                    <td>4</td>
-                    <td>1</td>
-                    <td>5.0</td>
-                    <td>1.0</td>
-                    <td>4.0</td>
+                    <td data-label="Sitio">ADN40-APP</td>
+                    <td data-label="Total">5</td>
+                    <td data-label="Web">0</td>
+                    <td data-label="App">5</td>
+                    <td data-label="Aceptadas">4</td>
+                    <td data-label="Rechazadas">1</td>
+                    <td data-label="Promedio/Semana">5.0</td>
+                    <td data-label="Promedio Rechazadas/Semana">1.0</td>
+                    <td data-label="Promedio Aceptadas/Semana">4.0</td>
                 </tr>
                 <tr>
-                    <td>Entretenimiento</td>
-                    <td>5</td>
-                    <td>3</td>
-                    <td>2</td>
-                    <td>3</td>
-                    <td>2</td>
-                    <td>1.67</td>
-                    <td>0.67</td>
-                    <td>1.0</td>
+                    <td data-label="Sitio">Entretenimiento</td>
+                    <td data-label="Total">5</td>
+                    <td data-label="Web">3</td>
+                    <td data-label="App">2</td>
+                    <td data-label="Aceptadas">3</td>
+                    <td data-label="Rechazadas">2</td>
+                    <td data-label="Promedio/Semana">1.67</td>
+                    <td data-label="Promedio Rechazadas/Semana">0.67</td>
+                    <td data-label="Promedio Aceptadas/Semana">1.0</td>
                 </tr>
                 <tr>
-                    <td>ADN40-app</td>
-                    <td>4</td>
-                    <td>0</td>
-                    <td>4</td>
-                    <td>4</td>
-                    <td>0</td>
-                    <td>2.0</td>
-                    <td>0.0</td>
-                    <td>2.0</td>
+                    <td data-label="Sitio">ADN40-app</td>
+                    <td data-label="Total">4</td>
+                    <td data-label="Web">0</td>
+                    <td data-label="App">4</td>
+                    <td data-label="Aceptadas">4</td>
+                    <td data-label="Rechazadas">0</td>
+                    <td data-label="Promedio/Semana">2.0</td>
+                    <td data-label="Promedio Rechazadas/Semana">0.0</td>
+                    <td data-label="Promedio Aceptadas/Semana">2.0</td>
                 </tr>
                 <tr>
-                    <td>Azteca Noticias- app</td>
-                    <td>4</td>
-                    <td>0</td>
-                    <td>4</td>
-                    <td>0</td>
-                    <td>4</td>
-                    <td>4.0</td>
-                    <td>4.0</td>
-                    <td>0.0</td>
+                    <td data-label="Sitio">Azteca Noticias- app</td>
+                    <td data-label="Total">4</td>
+                    <td data-label="Web">0</td>
+                    <td data-label="App">4</td>
+                    <td data-label="Aceptadas">0</td>
+                    <td data-label="Rechazadas">4</td>
+                    <td data-label="Promedio/Semana">4.0</td>
+                    <td data-label="Promedio Rechazadas/Semana">4.0</td>
+                    <td data-label="Promedio Aceptadas/Semana">0.0</td>
                 </tr>
                 <tr>
-                    <td>Deportes-app</td>
-                    <td>4</td>
-                    <td>0</td>
-                    <td>4</td>
-                    <td>3</td>
-                    <td>0</td>
-                    <td>2.0</td>
-                    <td>0.0</td>
-                    <td>1.5</td>
+                    <td data-label="Sitio">Deportes-app</td>
+                    <td data-label="Total">4</td>
+                    <td data-label="Web">0</td>
+                    <td data-label="App">4</td>
+                    <td data-label="Aceptadas">3</td>
+                    <td data-label="Rechazadas">0</td>
+                    <td data-label="Promedio/Semana">2.0</td>
+                    <td data-label="Promedio Rechazadas/Semana">0.0</td>
+                    <td data-label="Promedio Aceptadas/Semana">1.5</td>
                 </tr>
                 <tr>
-                    <td>Entretenimiento-web</td>
-                    <td>4</td>
-                    <td>4</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>4</td>
-                    <td>4.0</td>
-                    <td>4.0</td>
-                    <td>0.0</td>
+                    <td data-label="Sitio">Entretenimiento-web</td>
+                    <td data-label="Total">4</td>
+                    <td data-label="Web">4</td>
+                    <td data-label="App">0</td>
+                    <td data-label="Aceptadas">0</td>
+                    <td data-label="Rechazadas">4</td>
+                    <td data-label="Promedio/Semana">4.0</td>
+                    <td data-label="Promedio Rechazadas/Semana">4.0</td>
+                    <td data-label="Promedio Aceptadas/Semana">0.0</td>
                 </tr>
                 <tr>
-                    <td>Entretenimiento-App</td>
-                    <td>3</td>
-                    <td>0</td>
-                    <td>3</td>
-                    <td>1</td>
-                    <td>2</td>
-                    <td>3.0</td>
-                    <td>2.0</td>
-                    <td>1.0</td>
+                    <td data-label="Sitio">Entretenimiento-App</td>
+                    <td data-label="Total">3</td>
+                    <td data-label="Web">0</td>
+                    <td data-label="App">3</td>
+                    <td data-label="Aceptadas">1</td>
+                    <td data-label="Rechazadas">2</td>
+                    <td data-label="Promedio/Semana">3.0</td>
+                    <td data-label="Promedio Rechazadas/Semana">2.0</td>
+                    <td data-label="Promedio Aceptadas/Semana">1.0</td>
                 </tr>
                 <tr>
-                    <td>Data Log-in</td>
-                    <td>3</td>
-                    <td>0</td>
-                    <td>2</td>
-                    <td>2</td>
-                    <td>1</td>
-                    <td>1.5</td>
-                    <td>0.5</td>
-                    <td>1.0</td>
+                    <td data-label="Sitio">Data Log-in</td>
+                    <td data-label="Total">3</td>
+                    <td data-label="Web">0</td>
+                    <td data-label="App">2</td>
+                    <td data-label="Aceptadas">2</td>
+                    <td data-label="Rechazadas">1</td>
+                    <td data-label="Promedio/Semana">1.5</td>
+                    <td data-label="Promedio Rechazadas/Semana">0.5</td>
+                    <td data-label="Promedio Aceptadas/Semana">1.0</td>
                 </tr>
                 </tbody>
             </table>
@@ -1373,7 +1528,50 @@
         // Datos para los gráficos
         const allStats = {"qa": {"weekly": {"tarjetas semana 26mayo-30mayo": {"tarjetas_por_qa": {"Mar\u00eda De Los Angeles": 7, "Kevin Jared": 9, "Teresita Del Ni\u00f1o": 1, "Luis Erik Arenas": 1, "Sandy Ram\u00edrez": 7}, "rechazadas_por_qa": {"Mar\u00eda De Los Angeles": 0, "Kevin Jared": 0, "Teresita Del Ni\u00f1o": 0, "Luis Erik Arenas": 0, "Sandy Ram\u00edrez": 0}, "total_semana": 25, "total_rechazadas_semana": 0}, "tarjetas semana 19mayo-23mayo": {"tarjetas_por_qa": {"Eduardo Pi\u00f1a": 4, "Mar\u00eda Teresa Gonz\u00e1lez": 10, "Teresita Del Ni\u00f1o": 3, "Sandy Ram\u00edrez": 5, "Kevin Jared": 6, "Manuel Su\u00e1rez": 4, "Mar\u00eda De Los Angeles": 17}, "rechazadas_por_qa": {"Eduardo Pi\u00f1a": 3, "Mar\u00eda Teresa Gonz\u00e1lez": 6, "Teresita Del Ni\u00f1o": 2, "Sandy Ram\u00edrez": 4, "Kevin Jared": 3, "Manuel Su\u00e1rez": 0, "Mar\u00eda De Los Angeles": 6}, "total_semana": 49, "total_rechazadas_semana": 24}, "tarjetas semana 12mayo-16mayo": {"tarjetas_por_qa": {"Kevin Jared": 8, "Eduardo Pi\u00f1a": 15, "Sandy Ram\u00edrez": 2, "Manuel Su\u00e1rez": 2, "Teresita Del Ni\u00f1o": 8}, "rechazadas_por_qa": {"Kevin Jared": 3, "Eduardo Pi\u00f1a": 2, "Sandy Ram\u00edrez": 0, "Manuel Su\u00e1rez": 0, "Teresita Del Ni\u00f1o": 4}, "total_semana": 141, "total_rechazadas_semana": 9}, "tarjetas semana 5 mayo- 9 mayo": {"tarjetas_por_qa": {"Teresita Del Ni\u00f1o": 5, "Mar\u00eda De Los Angeles": 7, "Sandy Ram\u00edrez": 2, "Mar\u00eda Teresa Gonz\u00e1lez": 1, "Manuel Su\u00e1rez": 2}, "rechazadas_por_qa": {"Teresita Del Ni\u00f1o": 2, "Mar\u00eda De Los Angeles": 4, "Sandy Ram\u00edrez": 0, "Mar\u00eda Teresa Gonz\u00e1lez": 0, "Manuel Su\u00e1rez": 2}, "total_semana": 17, "total_rechazadas_semana": 8}, "tarjetas semana 21 abr-25 abr": {"tarjetas_por_qa": {"Mar\u00eda De Los Angeles": 8, "Eduardo Pi\u00f1a": 18, "Mar\u00eda Teresa Gonz\u00e1lez": 2, "Teresita Del Ni\u00f1o": 2, "Sandy Ram\u00edrez": 2, "Manuel Su\u00e1rez": 2, "Kevin Jared": 1}, "rechazadas_por_qa": {"Mar\u00eda De Los Angeles": 3, "Eduardo Pi\u00f1a": 8, "Mar\u00eda Teresa Gonz\u00e1lez": 2, "Teresita Del Ni\u00f1o": 0, "Sandy Ram\u00edrez": 0, "Manuel Su\u00e1rez": 0, "Kevin Jared": 0}, "total_semana": 35, "total_rechazadas_semana": 13}, "tarjetas semana 28abr-2mayo": {"tarjetas_por_qa": {"Mar\u00eda De Los Angeles": 4, "Sandy Ram\u00edrez": 3, "Eduardo Pi\u00f1a": 15, "Kevin Jared": 4, "Teresita Del Ni\u00f1o": 12}, "rechazadas_por_qa": {"Mar\u00eda De Los Angeles": 1, "Sandy Ram\u00edrez": 0, "Eduardo Pi\u00f1a": 9, "Kevin Jared": 1, "Teresita Del Ni\u00f1o": 11}, "total_semana": 38, "total_rechazadas_semana": 22}, "tarjetas semana 14abril-16 abri": {"tarjetas_por_qa": {"Kevin Jared": 3, "Mar\u00eda De Los Angeles": 8, "Eduardo Pi\u00f1a": 10, "Sandy Ram\u00edrez": 2, "Teresita Del Ni\u00f1o": 3}, "rechazadas_por_qa": {"Kevin Jared": 1, "Mar\u00eda De Los Angeles": 0, "Eduardo Pi\u00f1a": 4, "Sandy Ram\u00edrez": 0, "Teresita Del Ni\u00f1o": 1}, "total_semana": 26, "total_rechazadas_semana": 6}, "tarjetas semana 7 abril-11abril": {"tarjetas_por_qa": {}, "rechazadas_por_qa": {}, "total_semana": 28, "total_rechazadas_semana": 2}, "tarjetas semana 31mar- 4abril": {"tarjetas_por_qa": {}, "rechazadas_por_qa": {}, "total_semana": 45, "total_rechazadas_semana": 14}, "tarjetas semana 24mar-28mar": {"tarjetas_por_qa": {}, "rechazadas_por_qa": {}, "total_semana": 55, "total_rechazadas_semana": 13}}, "historical": {"por_qa": {"Mar\u00eda De Los Angeles": {"total_revisadas": 51, "total_rechazadas": 14, "promedio_semanal": 5.1}, "Kevin Jared": {"total_revisadas": 31, "total_rechazadas": 8, "promedio_semanal": 3.1}, "Teresita Del Ni\u00f1o": {"total_revisadas": 34, "total_rechazadas": 20, "promedio_semanal": 3.4}, "Luis Erik Arenas": {"total_revisadas": 1, "total_rechazadas": 0, "promedio_semanal": 0.1}, "Sandy Ram\u00edrez": {"total_revisadas": 23, "total_rechazadas": 4, "promedio_semanal": 2.3}, "Eduardo Pi\u00f1a": {"total_revisadas": 62, "total_rechazadas": 26, "promedio_semanal": 6.2}, "Mar\u00eda Teresa Gonz\u00e1lez": {"total_revisadas": 13, "total_rechazadas": 8, "promedio_semanal": 1.3}, "Manuel Su\u00e1rez": {"total_revisadas": 10, "total_rechazadas": 2, "promedio_semanal": 1.0}}, "total_rechazadas": 111, "total_revisadas": 459}}, "web": {"weekly": {"tarjetas semana 26mayo-30mayo": {"revisadas": 15, "rechazadas": 0, "aceptadas": 4, "porcentaje_rechazo": 0.0}, "tarjetas semana 19mayo-23mayo": {"revisadas": 29, "rechazadas": 12, "aceptadas": 14, "porcentaje_rechazo": 41.38}, "tarjetas semana 12mayo-16mayo": {"revisadas": 8, "rechazadas": 4, "aceptadas": 4, "porcentaje_rechazo": 50.0}, "tarjetas semana 5 mayo- 9 mayo": {"revisadas": 6, "rechazadas": 3, "aceptadas": 3, "porcentaje_rechazo": 50.0}, "tarjetas semana 21 abr-25 abr": {"revisadas": 16, "rechazadas": 2, "aceptadas": 14, "porcentaje_rechazo": 12.5}, "tarjetas semana 28abr-2mayo": {"revisadas": 19, "rechazadas": 11, "aceptadas": 8, "porcentaje_rechazo": 57.89}, "tarjetas semana 14abril-16 abri": {"revisadas": 20, "rechazadas": 5, "aceptadas": 14, "porcentaje_rechazo": 25.0}, "tarjetas semana 7 abril-11abril": {"revisadas": 17, "rechazadas": 2, "aceptadas": 15, "porcentaje_rechazo": 11.76}, "tarjetas semana 31mar- 4abril": {"revisadas": 23, "rechazadas": 7, "aceptadas": 13, "porcentaje_rechazo": 30.43}, "tarjetas semana 24mar-28mar": {"revisadas": 21, "rechazadas": 5, "aceptadas": 13, "porcentaje_rechazo": 23.81}}, "historical": {"total_revisadas": 174, "total_rechazadas": 51, "total_aceptadas": 102, "porcentaje_rechazo": 29.31}}, "app": {"weekly": {"tarjetas semana 26mayo-30mayo": {"revisadas": 9, "rechazadas": 0, "aceptadas": 2, "porcentaje_rechazo": 0.0}, "tarjetas semana 19mayo-23mayo": {"revisadas": 20, "rechazadas": 12, "aceptadas": 8, "porcentaje_rechazo": 60.0}, "tarjetas semana 12mayo-16mayo": {"revisadas": 27, "rechazadas": 5, "aceptadas": 19, "porcentaje_rechazo": 18.52}, "tarjetas semana 5 mayo- 9 mayo": {"revisadas": 5, "rechazadas": 2, "aceptadas": 3, "porcentaje_rechazo": 40.0}, "tarjetas semana 21 abr-25 abr": {"revisadas": 17, "rechazadas": 11, "aceptadas": 6, "porcentaje_rechazo": 64.71}, "tarjetas semana 28abr-2mayo": {"revisadas": 19, "rechazadas": 11, "aceptadas": 5, "porcentaje_rechazo": 57.89}, "tarjetas semana 14abril-16 abri": {"revisadas": 6, "rechazadas": 1, "aceptadas": 2, "porcentaje_rechazo": 16.67}, "tarjetas semana 7 abril-11abril": {"revisadas": 11, "rechazadas": 0, "aceptadas": 7, "porcentaje_rechazo": 0.0}, "tarjetas semana 31mar- 4abril": {"revisadas": 21, "rechazadas": 7, "aceptadas": 3, "porcentaje_rechazo": 33.33}, "tarjetas semana 24mar-28mar": {"revisadas": 34, "rechazadas": 8, "aceptadas": 18, "porcentaje_rechazo": 23.53}}, "historical": {"total_revisadas": 169, "total_rechazadas": 57, "total_aceptadas": 73, "porcentaje_rechazo": 33.73}}, "dev_web": {"Ricardo Yael": {"total_tarjetas": 19, "rechazadas": 13, "aceptadas": 6, "promedio_semanal_historico": 1.9, "porcentaje_rechazo": 68.42, "semanas_activo": 4}, "Alexis Mendoza": {"total_tarjetas": 17, "rechazadas": 5, "aceptadas": 11, "promedio_semanal_historico": 1.7, "porcentaje_rechazo": 29.41, "semanas_activo": 7}, "Brandon": {"total_tarjetas": 16, "rechazadas": 4, "aceptadas": 10, "promedio_semanal_historico": 1.6, "porcentaje_rechazo": 25.0, "semanas_activo": 6}, "Edwin": {"total_tarjetas": 16, "rechazadas": 3, "aceptadas": 11, "promedio_semanal_historico": 1.6, "porcentaje_rechazo": 18.75, "semanas_activo": 7}, "Janette": {"total_tarjetas": 13, "rechazadas": 2, "aceptadas": 7, "promedio_semanal_historico": 1.3, "porcentaje_rechazo": 15.38, "semanas_activo": 9}, "Iv\u00e1n Salinas": {"total_tarjetas": 13, "rechazadas": 4, "aceptadas": 8, "promedio_semanal_historico": 1.3, "porcentaje_rechazo": 30.77, "semanas_activo": 7}, "Efr\u00e9n": {"total_tarjetas": 11, "rechazadas": 0, "aceptadas": 8, "promedio_semanal_historico": 1.1, "porcentaje_rechazo": 0.0, "semanas_activo": 7}, "Daniel": {"total_tarjetas": 8, "rechazadas": 2, "aceptadas": 5, "promedio_semanal_historico": 0.8, "porcentaje_rechazo": 25.0, "semanas_activo": 7}, "Iv\u00e1n Ch\u00e1vez": {"total_tarjetas": 7, "rechazadas": 2, "aceptadas": 3, "promedio_semanal_historico": 0.7, "porcentaje_rechazo": 28.57, "semanas_activo": 5}, "Gustavo Sandoval": {"total_tarjetas": 7, "rechazadas": 2, "aceptadas": 5, "promedio_semanal_historico": 0.7, "porcentaje_rechazo": 28.57, "semanas_activo": 4}, "Desarrollador Desconocido": {"total_tarjetas": 7, "rechazadas": 4, "aceptadas": 3, "promedio_semanal_historico": 0.7, "porcentaje_rechazo": 57.14, "semanas_activo": 4}, "Juan Camilo": {"total_tarjetas": 6, "rechazadas": 1, "aceptadas": 4, "promedio_semanal_historico": 0.6, "porcentaje_rechazo": 16.67, "semanas_activo": 5}, "Luis Ramos": {"total_tarjetas": 5, "rechazadas": 1, "aceptadas": 4, "promedio_semanal_historico": 0.5, "porcentaje_rechazo": 20.0, "semanas_activo": 4}, "Luis Cabrera": {"total_tarjetas": 4, "rechazadas": 0, "aceptadas": 4, "promedio_semanal_historico": 0.4, "porcentaje_rechazo": 0.0, "semanas_activo": 3}, "Ezequiel": {"total_tarjetas": 4, "rechazadas": 0, "aceptadas": 2, "promedio_semanal_historico": 0.4, "porcentaje_rechazo": 0.0, "semanas_activo": 3}, "Miguel Camargo": {"total_tarjetas": 3, "rechazadas": 1, "aceptadas": 0, "promedio_semanal_historico": 0.3, "porcentaje_rechazo": 33.33, "semanas_activo": 3}, "David Carrillo": {"total_tarjetas": 3, "rechazadas": 3, "aceptadas": 0, "promedio_semanal_historico": 0.3, "porcentaje_rechazo": 100.0, "semanas_activo": 2}, "Juan Carlos Teofilo": {"total_tarjetas": 3, "rechazadas": 1, "aceptadas": 2, "promedio_semanal_historico": 0.3, "porcentaje_rechazo": 33.33, "semanas_activo": 2}, "Sinuh\u00e9": {"total_tarjetas": 3, "rechazadas": 0, "aceptadas": 3, "promedio_semanal_historico": 0.3, "porcentaje_rechazo": 0.0, "semanas_activo": 2}, "Fernando Cruz": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 2, "promedio_semanal_historico": 0.2, "porcentaje_rechazo": 0.0, "semanas_activo": 2}, "Victor Meneses": {"total_tarjetas": 2, "rechazadas": 2, "aceptadas": 0, "promedio_semanal_historico": 0.2, "porcentaje_rechazo": 100.0, "semanas_activo": 2}, "Jes\u00fas Pineda": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "promedio_semanal_historico": 0.1, "porcentaje_rechazo": 0.0, "semanas_activo": 1}, "Alex Galindo": {"total_tarjetas": 1, "rechazadas": 1, "aceptadas": 0, "promedio_semanal_historico": 0.1, "porcentaje_rechazo": 100.0, "semanas_activo": 1}, "Zemsania": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "promedio_semanal_historico": 0.1, "porcentaje_rechazo": 0.0, "semanas_activo": 1}, "Nestor": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "promedio_semanal_historico": 0.1, "porcentaje_rechazo": 0.0, "semanas_activo": 1}, "Nelumbo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "promedio_semanal_historico": 0.1, "porcentaje_rechazo": 0.0, "semanas_activo": 1}}, "dev_app": {"Alex Galindo": {"total_tarjetas": 53, "rechazadas": 21, "aceptadas": 20, "promedio_semanal_historico": 5.3, "porcentaje_rechazo": 39.62, "semanas_activo": 7}, "Jes\u00fas Tirado": {"total_tarjetas": 37, "rechazadas": 5, "aceptadas": 22, "promedio_semanal_historico": 3.7, "porcentaje_rechazo": 13.51, "semanas_activo": 8}, "Rodrigo Vidal": {"total_tarjetas": 23, "rechazadas": 9, "aceptadas": 11, "promedio_semanal_historico": 2.3, "porcentaje_rechazo": 39.13, "semanas_activo": 6}, "Luis Fernando": {"total_tarjetas": 17, "rechazadas": 4, "aceptadas": 6, "promedio_semanal_historico": 1.7, "porcentaje_rechazo": 23.53, "semanas_activo": 7}, "Felipe Romano": {"total_tarjetas": 15, "rechazadas": 12, "aceptadas": 2, "promedio_semanal_historico": 1.5, "porcentaje_rechazo": 80.0, "semanas_activo": 3}, "Rodrigo Mart\u00edn": {"total_tarjetas": 6, "rechazadas": 2, "aceptadas": 3, "promedio_semanal_historico": 0.6, "porcentaje_rechazo": 33.33, "semanas_activo": 3}, "Arturo Hern\u00e1ndez": {"total_tarjetas": 5, "rechazadas": 3, "aceptadas": 1, "promedio_semanal_historico": 0.5, "porcentaje_rechazo": 60.0, "semanas_activo": 3}, "Desarrollador Desconocido": {"total_tarjetas": 4, "rechazadas": 1, "aceptadas": 1, "promedio_semanal_historico": 0.4, "porcentaje_rechazo": 25.0, "semanas_activo": 2}, "Martin Reyes": {"total_tarjetas": 4, "rechazadas": 0, "aceptadas": 2, "promedio_semanal_historico": 0.4, "porcentaje_rechazo": 0.0, "semanas_activo": 1}, "Pablo Solorzano": {"total_tarjetas": 3, "rechazadas": 0, "aceptadas": 3, "promedio_semanal_historico": 0.3, "porcentaje_rechazo": 0.0, "semanas_activo": 2}, "Ricardo Yael": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "promedio_semanal_historico": 0.1, "porcentaje_rechazo": 0.0, "semanas_activo": 1}, "Guillermo Valdez": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "promedio_semanal_historico": 0.1, "porcentaje_rechazo": 0.0, "semanas_activo": 1}}, "dev_web_weekly_details": {"Janette": {"tarjetas semana 26mayo-30mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 0, "porcentaje_rechazo": 0.0}, "tarjetas semana 19mayo-23mayo": {"total_tarjetas": 4, "rechazadas": 1, "aceptadas": 1, "porcentaje_rechazo": 25.0}, "tarjetas semana 5 mayo- 9 mayo": {"total_tarjetas": 1, "rechazadas": 1, "aceptadas": 0, "porcentaje_rechazo": 100.0}, "tarjetas semana 21 abr-25 abr": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 28abr-2mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 14abril-16 abri": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 0, "porcentaje_rechazo": 0.0}, "tarjetas semana 7 abril-11abril": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 31mar- 4abril": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 2, "porcentaje_rechazo": 0.0}, "tarjetas semana 24mar-28mar": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}}, "Brandon": {"tarjetas semana 26mayo-30mayo": {"total_tarjetas": 5, "rechazadas": 0, "aceptadas": 3, "porcentaje_rechazo": 0.0}, "tarjetas semana 19mayo-23mayo": {"total_tarjetas": 2, "rechazadas": 2, "aceptadas": 0, "porcentaje_rechazo": 100.0}, "tarjetas semana 28abr-2mayo": {"total_tarjetas": 3, "rechazadas": 0, "aceptadas": 3, "porcentaje_rechazo": 0.0}, "tarjetas semana 14abril-16 abri": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 2, "porcentaje_rechazo": 0.0}, "tarjetas semana 7 abril-11abril": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 24mar-28mar": {"total_tarjetas": 3, "rechazadas": 2, "aceptadas": 1, "porcentaje_rechazo": 66.67}}, "Alexis Mendoza": {"tarjetas semana 26mayo-30mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 19mayo-23mayo": {"total_tarjetas": 2, "rechazadas": 1, "aceptadas": 0, "porcentaje_rechazo": 50.0}, "tarjetas semana 21 abr-25 abr": {"total_tarjetas": 6, "rechazadas": 0, "aceptadas": 6, "porcentaje_rechazo": 0.0}, "tarjetas semana 28abr-2mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 14abril-16 abri": {"total_tarjetas": 3, "rechazadas": 3, "aceptadas": 0, "porcentaje_rechazo": 100.0}, "tarjetas semana 31mar- 4abril": {"total_tarjetas": 1, "rechazadas": 1, "aceptadas": 0, "porcentaje_rechazo": 100.0}, "tarjetas semana 24mar-28mar": {"total_tarjetas": 3, "rechazadas": 0, "aceptadas": 3, "porcentaje_rechazo": 0.0}}, "Miguel Camargo": {"tarjetas semana 26mayo-30mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 0, "porcentaje_rechazo": 0.0}, "tarjetas semana 19mayo-23mayo": {"total_tarjetas": 1, "rechazadas": 1, "aceptadas": 0, "porcentaje_rechazo": 100.0}, "tarjetas semana 24mar-28mar": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 0, "porcentaje_rechazo": 0.0}}, "Efr\u00e9n": {"tarjetas semana 26mayo-30mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 0, "porcentaje_rechazo": 0.0}, "tarjetas semana 19mayo-23mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 21 abr-25 abr": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 14abril-16 abri": {"total_tarjetas": 3, "rechazadas": 0, "aceptadas": 3, "porcentaje_rechazo": 0.0}, "tarjetas semana 7 abril-11abril": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 2, "porcentaje_rechazo": 0.0}, "tarjetas semana 31mar- 4abril": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 24mar-28mar": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 0, "porcentaje_rechazo": 0.0}}, "Juan Camilo": {"tarjetas semana 26mayo-30mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 0, "porcentaje_rechazo": 0.0}, "tarjetas semana 19mayo-23mayo": {"total_tarjetas": 1, "rechazadas": 1, "aceptadas": 0, "porcentaje_rechazo": 100.0}, "tarjetas semana 21 abr-25 abr": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 7 abril-11abril": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 2, "porcentaje_rechazo": 0.0}, "tarjetas semana 24mar-28mar": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}}, "Edwin": {"tarjetas semana 26mayo-30mayo": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 0, "porcentaje_rechazo": 0.0}, "tarjetas semana 19mayo-23mayo": {"total_tarjetas": 2, "rechazadas": 2, "aceptadas": 0, "porcentaje_rechazo": 100.0}, "tarjetas semana 21 abr-25 abr": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 14abril-16 abri": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 2, "porcentaje_rechazo": 0.0}, "tarjetas semana 7 abril-11abril": {"total_tarjetas": 3, "rechazadas": 0, "aceptadas": 3, "porcentaje_rechazo": 0.0}, "tarjetas semana 31mar- 4abril": {"total_tarjetas": 4, "rechazadas": 0, "aceptadas": 4, "porcentaje_rechazo": 0.0}, "tarjetas semana 24mar-28mar": {"total_tarjetas": 2, "rechazadas": 1, "aceptadas": 1, "porcentaje_rechazo": 50.0}}, "Daniel": {"tarjetas semana 26mayo-30mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 0, "porcentaje_rechazo": 0.0}, "tarjetas semana 19mayo-23mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 21 abr-25 abr": {"total_tarjetas": 1, "rechazadas": 1, "aceptadas": 0, "porcentaje_rechazo": 100.0}, "tarjetas semana 28abr-2mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 14abril-16 abri": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 31mar- 4abril": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 2, "porcentaje_rechazo": 0.0}, "tarjetas semana 24mar-28mar": {"total_tarjetas": 1, "rechazadas": 1, "aceptadas": 0, "porcentaje_rechazo": 100.0}}, "Iv\u00e1n Ch\u00e1vez": {"tarjetas semana 26mayo-30mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 0, "porcentaje_rechazo": 0.0}, "tarjetas semana 19mayo-23mayo": {"total_tarjetas": 3, "rechazadas": 2, "aceptadas": 1, "porcentaje_rechazo": 66.67}, "tarjetas semana 14abril-16 abri": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 7 abril-11abril": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 31mar- 4abril": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 0, "porcentaje_rechazo": 0.0}}, "Iv\u00e1n Salinas": {"tarjetas semana 26mayo-30mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 0, "porcentaje_rechazo": 0.0}, "tarjetas semana 19mayo-23mayo": {"total_tarjetas": 5, "rechazadas": 0, "aceptadas": 5, "porcentaje_rechazo": 0.0}, "tarjetas semana 21 abr-25 abr": {"total_tarjetas": 2, "rechazadas": 1, "aceptadas": 1, "porcentaje_rechazo": 50.0}, "tarjetas semana 28abr-2mayo": {"total_tarjetas": 1, "rechazadas": 1, "aceptadas": 0, "porcentaje_rechazo": 100.0}, "tarjetas semana 7 abril-11abril": {"total_tarjetas": 2, "rechazadas": 1, "aceptadas": 1, "porcentaje_rechazo": 50.0}, "tarjetas semana 31mar- 4abril": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 24mar-28mar": {"total_tarjetas": 1, "rechazadas": 1, "aceptadas": 0, "porcentaje_rechazo": 100.0}}, "Gustavo Sandoval": {"tarjetas semana 19mayo-23mayo": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 2, "porcentaje_rechazo": 0.0}, "tarjetas semana 5 mayo- 9 mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 7 abril-11abril": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 2, "porcentaje_rechazo": 0.0}, "tarjetas semana 31mar- 4abril": {"total_tarjetas": 2, "rechazadas": 2, "aceptadas": 0, "porcentaje_rechazo": 100.0}}, "Ricardo Yael": {"tarjetas semana 19mayo-23mayo": {"total_tarjetas": 3, "rechazadas": 2, "aceptadas": 1, "porcentaje_rechazo": 66.67}, "tarjetas semana 12mayo-16mayo": {"total_tarjetas": 5, "rechazadas": 2, "aceptadas": 3, "porcentaje_rechazo": 40.0}, "tarjetas semana 5 mayo- 9 mayo": {"total_tarjetas": 3, "rechazadas": 1, "aceptadas": 2, "porcentaje_rechazo": 33.33}, "tarjetas semana 28abr-2mayo": {"total_tarjetas": 8, "rechazadas": 8, "aceptadas": 0, "porcentaje_rechazo": 100.0}}, "Desarrollador Desconocido": {"tarjetas semana 19mayo-23mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 21 abr-25 abr": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 28abr-2mayo": {"total_tarjetas": 1, "rechazadas": 1, "aceptadas": 0, "porcentaje_rechazo": 100.0}, "tarjetas semana 31mar- 4abril": {"total_tarjetas": 4, "rechazadas": 3, "aceptadas": 1, "porcentaje_rechazo": 75.0}}, "Fernando Cruz": {"tarjetas semana 19mayo-23mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 21 abr-25 abr": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}}, "Luis Ramos": {"tarjetas semana 12mayo-16mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 5 mayo- 9 mayo": {"total_tarjetas": 1, "rechazadas": 1, "aceptadas": 0, "porcentaje_rechazo": 100.0}, "tarjetas semana 14abril-16 abri": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 2, "porcentaje_rechazo": 0.0}, "tarjetas semana 7 abril-11abril": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}}, "David Carrillo": {"tarjetas semana 12mayo-16mayo": {"total_tarjetas": 2, "rechazadas": 2, "aceptadas": 0, "porcentaje_rechazo": 100.0}, "tarjetas semana 28abr-2mayo": {"total_tarjetas": 1, "rechazadas": 1, "aceptadas": 0, "porcentaje_rechazo": 100.0}}, "Jes\u00fas Pineda": {"tarjetas semana 21 abr-25 abr": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}}, "Juan Carlos Teofilo": {"tarjetas semana 28abr-2mayo": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 2, "porcentaje_rechazo": 0.0}, "tarjetas semana 14abril-16 abri": {"total_tarjetas": 1, "rechazadas": 1, "aceptadas": 0, "porcentaje_rechazo": 100.0}}, "Luis Cabrera": {"tarjetas semana 14abril-16 abri": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 2, "porcentaje_rechazo": 0.0}, "tarjetas semana 7 abril-11abril": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 24mar-28mar": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}}, "Ezequiel": {"tarjetas semana 14abril-16 abri": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 31mar- 4abril": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 0, "porcentaje_rechazo": 0.0}, "tarjetas semana 24mar-28mar": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}}, "Victor Meneses": {"tarjetas semana 14abril-16 abri": {"total_tarjetas": 1, "rechazadas": 1, "aceptadas": 0, "porcentaje_rechazo": 100.0}, "tarjetas semana 7 abril-11abril": {"total_tarjetas": 1, "rechazadas": 1, "aceptadas": 0, "porcentaje_rechazo": 100.0}}, "Sinuh\u00e9": {"tarjetas semana 31mar- 4abril": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 2, "porcentaje_rechazo": 0.0}, "tarjetas semana 24mar-28mar": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}}, "Alex Galindo": {"tarjetas semana 31mar- 4abril": {"total_tarjetas": 1, "rechazadas": 1, "aceptadas": 0, "porcentaje_rechazo": 100.0}}, "Zemsania": {"tarjetas semana 24mar-28mar": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}}, "Nestor": {"tarjetas semana 24mar-28mar": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}}, "Nelumbo": {"tarjetas semana 24mar-28mar": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}}}, "dev_app_weekly_details": {"Pablo Solorzano": {"tarjetas semana 26mayo-30mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 12mayo-16mayo": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 2, "porcentaje_rechazo": 0.0}}, "Ricardo Yael": {"tarjetas semana 26mayo-30mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}}, "Luis Fernando": {"tarjetas semana 26mayo-30mayo": {"total_tarjetas": 7, "rechazadas": 0, "aceptadas": 0, "porcentaje_rechazo": 0.0}, "tarjetas semana 19mayo-23mayo": {"total_tarjetas": 4, "rechazadas": 4, "aceptadas": 0, "porcentaje_rechazo": 100.0}, "tarjetas semana 12mayo-16mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 5 mayo- 9 mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 28abr-2mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 14abril-16 abri": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 7 abril-11abril": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 2, "porcentaje_rechazo": 0.0}}, "Jes\u00fas Tirado": {"tarjetas semana 19mayo-23mayo": {"total_tarjetas": 2, "rechazadas": 2, "aceptadas": 0, "porcentaje_rechazo": 100.0}, "tarjetas semana 12mayo-16mayo": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 0, "porcentaje_rechazo": 0.0}, "tarjetas semana 5 mayo- 9 mayo": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 2, "porcentaje_rechazo": 0.0}, "tarjetas semana 21 abr-25 abr": {"total_tarjetas": 7, "rechazadas": 1, "aceptadas": 6, "porcentaje_rechazo": 14.29}, "tarjetas semana 28abr-2mayo": {"total_tarjetas": 5, "rechazadas": 1, "aceptadas": 1, "porcentaje_rechazo": 20.0}, "tarjetas semana 14abril-16 abri": {"total_tarjetas": 3, "rechazadas": 1, "aceptadas": 1, "porcentaje_rechazo": 33.33}, "tarjetas semana 31mar- 4abril": {"total_tarjetas": 4, "rechazadas": 0, "aceptadas": 0, "porcentaje_rechazo": 0.0}, "tarjetas semana 24mar-28mar": {"total_tarjetas": 12, "rechazadas": 0, "aceptadas": 12, "porcentaje_rechazo": 0.0}}, "Felipe Romano": {"tarjetas semana 19mayo-23mayo": {"total_tarjetas": 5, "rechazadas": 4, "aceptadas": 1, "porcentaje_rechazo": 80.0}, "tarjetas semana 31mar- 4abril": {"total_tarjetas": 4, "rechazadas": 4, "aceptadas": 0, "porcentaje_rechazo": 100.0}, "tarjetas semana 24mar-28mar": {"total_tarjetas": 6, "rechazadas": 4, "aceptadas": 1, "porcentaje_rechazo": 66.67}}, "Rodrigo Vidal": {"tarjetas semana 19mayo-23mayo": {"total_tarjetas": 3, "rechazadas": 0, "aceptadas": 3, "porcentaje_rechazo": 0.0}, "tarjetas semana 12mayo-16mayo": {"total_tarjetas": 8, "rechazadas": 3, "aceptadas": 5, "porcentaje_rechazo": 37.5}, "tarjetas semana 28abr-2mayo": {"total_tarjetas": 3, "rechazadas": 1, "aceptadas": 2, "porcentaje_rechazo": 33.33}, "tarjetas semana 7 abril-11abril": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 0, "porcentaje_rechazo": 0.0}, "tarjetas semana 31mar- 4abril": {"total_tarjetas": 3, "rechazadas": 2, "aceptadas": 1, "porcentaje_rechazo": 66.67}, "tarjetas semana 24mar-28mar": {"total_tarjetas": 4, "rechazadas": 3, "aceptadas": 0, "porcentaje_rechazo": 75.0}}, "Arturo Hern\u00e1ndez": {"tarjetas semana 19mayo-23mayo": {"total_tarjetas": 3, "rechazadas": 2, "aceptadas": 1, "porcentaje_rechazo": 66.67}, "tarjetas semana 21 abr-25 abr": {"total_tarjetas": 1, "rechazadas": 1, "aceptadas": 0, "porcentaje_rechazo": 100.0}, "tarjetas semana 24mar-28mar": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 0, "porcentaje_rechazo": 0.0}}, "Rodrigo Mart\u00edn": {"tarjetas semana 19mayo-23mayo": {"total_tarjetas": 3, "rechazadas": 0, "aceptadas": 3, "porcentaje_rechazo": 0.0}, "tarjetas semana 12mayo-16mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 0, "porcentaje_rechazo": 0.0}, "tarjetas semana 5 mayo- 9 mayo": {"total_tarjetas": 2, "rechazadas": 2, "aceptadas": 0, "porcentaje_rechazo": 100.0}}, "Alex Galindo": {"tarjetas semana 12mayo-16mayo": {"total_tarjetas": 13, "rechazadas": 2, "aceptadas": 11, "porcentaje_rechazo": 15.38}, "tarjetas semana 21 abr-25 abr": {"total_tarjetas": 9, "rechazadas": 9, "aceptadas": 0, "porcentaje_rechazo": 100.0}, "tarjetas semana 28abr-2mayo": {"total_tarjetas": 9, "rechazadas": 9, "aceptadas": 0, "porcentaje_rechazo": 100.0}, "tarjetas semana 14abril-16 abri": {"total_tarjetas": 2, "rechazadas": 0, "aceptadas": 0, "porcentaje_rechazo": 0.0}, "tarjetas semana 7 abril-11abril": {"total_tarjetas": 3, "rechazadas": 0, "aceptadas": 3, "porcentaje_rechazo": 0.0}, "tarjetas semana 31mar- 4abril": {"total_tarjetas": 6, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 24mar-28mar": {"total_tarjetas": 11, "rechazadas": 1, "aceptadas": 5, "porcentaje_rechazo": 9.09}}, "Desarrollador Desconocido": {"tarjetas semana 28abr-2mayo": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}, "tarjetas semana 31mar- 4abril": {"total_tarjetas": 3, "rechazadas": 1, "aceptadas": 0, "porcentaje_rechazo": 33.33}}, "Martin Reyes": {"tarjetas semana 7 abril-11abril": {"total_tarjetas": 4, "rechazadas": 0, "aceptadas": 2, "porcentaje_rechazo": 0.0}}, "Guillermo Valdez": {"tarjetas semana 31mar- 4abril": {"total_tarjetas": 1, "rechazadas": 0, "aceptadas": 1, "porcentaje_rechazo": 0.0}}}, "pm": {"prioridades": {"alta": {"total": 248, "promedio_semanal": 24.8}, "media": {"total": 101, "promedio_semanal": 10.1}, "baja": {"total": 3, "promedio_semanal": 0.3}}, "promedio_semanal": {"web": 17.4, "app": 16.9, "total": 34.3}, "por_semana": {"tarjetas semana 26mayo-30mayo": {"alta": 8, "media": 17, "baja": 0, "web": 15, "app": 9}, "tarjetas semana 19mayo-23mayo": {"alta": 25, "media": 24, "baja": 0, "web": 29, "app": 20}, "tarjetas semana 12mayo-16mayo": {"alta": 25, "media": 10, "baja": 0, "web": 8, "app": 27}, "tarjetas semana 5 mayo- 9 mayo": {"alta": 14, "media": 3, "baja": 0, "web": 6, "app": 5}, "tarjetas semana 21 abr-25 abr": {"alta": 28, "media": 6, "baja": 0, "web": 16, "app": 17}, "tarjetas semana 28abr-2mayo": {"alta": 23, "media": 15, "baja": 0, "web": 19, "app": 19}, "tarjetas semana 14abril-16 abri": {"alta": 21, "media": 5, "baja": 0, "web": 20, "app": 6}, "tarjetas semana 7 abril-11abril": {"alta": 16, "media": 11, "baja": 1, "web": 17, "app": 11}, "tarjetas semana 31mar- 4abril": {"alta": 42, "media": 3, "baja": 0, "web": 23, "app": 21}, "tarjetas semana 24mar-28mar": {"alta": 46, "media": 7, "baja": 2, "web": 21, "app": 34}}}, "sites": {"CTV\u00b4S Y UX": {"total": 58, "web": 17, "app": 41, "rechazadas": 23, "aceptadas": 27, "promedio_por_semana": 11.6, "promedio_rechazadas_semana": 4.6, "promedio_aceptadas_semana": 5.4, "plataformas": {"Fire TV": 18, "GoogleTV": 15, "Apple TV": 6}, "semanas_activo": 5}, "Azteca Noticias": {"total": 27, "web": 8, "app": 19, "rechazadas": 2, "aceptadas": 17, "promedio_por_semana": 3.0, "promedio_rechazadas_semana": 0.22, "promedio_aceptadas_semana": 1.89, "plataformas": {"Android": 15, "iOS": 4}, "semanas_activo": 9}, "Entretenimiento CTV\u00b4s": {"total": 24, "web": 6, "app": 18, "rechazadas": 1, "aceptadas": 7, "promedio_por_semana": 12.0, "promedio_rechazadas_semana": 0.5, "promedio_aceptadas_semana": 3.5, "plataformas": {"GoogleTV": 12, "Apple TV": 4, "Fire TV": 1}, "semanas_activo": 2}, "Adops": {"total": 23, "web": 23, "app": 0, "rechazadas": 2, "aceptadas": 15, "promedio_por_semana": 2.56, "promedio_rechazadas_semana": 0.22, "promedio_aceptadas_semana": 1.67, "plataformas": {}, "semanas_activo": 9}, "SEO": {"total": 23, "web": 22, "app": 0, "rechazadas": 6, "aceptadas": 17, "promedio_por_semana": 3.83, "promedio_rechazadas_semana": 1.0, "promedio_aceptadas_semana": 2.83, "plataformas": {}, "semanas_activo": 6}, "Data-Log-in": {"total": 21, "web": 18, "app": 3, "rechazadas": 9, "aceptadas": 12, "promedio_por_semana": 3.5, "promedio_rechazadas_semana": 1.5, "promedio_aceptadas_semana": 2.0, "plataformas": {"iOS": 2}, "semanas_activo": 6}, "ADN40": {"total": 20, "web": 3, "app": 15, "rechazadas": 10, "aceptadas": 5, "promedio_por_semana": 4.0, "promedio_rechazadas_semana": 2.0, "promedio_aceptadas_semana": 1.0, "plataformas": {"Android": 10, "iOS": 5}, "semanas_activo": 5}, "SEO-LSN": {"total": 19, "web": 12, "app": 1, "rechazadas": 4, "aceptadas": 7, "promedio_por_semana": 4.75, "promedio_rechazadas_semana": 1.0, "promedio_aceptadas_semana": 1.75, "plataformas": {}, "semanas_activo": 4}, "adn40": {"total": 13, "web": 0, "app": 13, "rechazadas": 6, "aceptadas": 3, "promedio_por_semana": 6.5, "promedio_rechazadas_semana": 3.0, "promedio_aceptadas_semana": 1.5, "plataformas": {"iOS": 8, "Android": 5}, "semanas_activo": 2}, "Noticias-LSN": {"total": 12, "web": 12, "app": 0, "rechazadas": 5, "aceptadas": 7, "promedio_por_semana": 12.0, "promedio_rechazadas_semana": 5.0, "promedio_aceptadas_semana": 7.0, "plataformas": {}, "semanas_activo": 1}, "Data-log-in": {"total": 12, "web": 9, "app": 3, "rechazadas": 9, "aceptadas": 3, "promedio_por_semana": 6.0, "promedio_rechazadas_semana": 4.5, "promedio_aceptadas_semana": 1.5, "plataformas": {"Android": 3}, "semanas_activo": 2}, "Locales": {"total": 11, "web": 11, "app": 0, "rechazadas": 2, "aceptadas": 7, "promedio_por_semana": 2.2, "promedio_rechazadas_semana": 0.4, "promedio_aceptadas_semana": 1.4, "plataformas": {}, "semanas_activo": 5}, "Roku": {"total": 10, "web": 0, "app": 10, "rechazadas": 0, "aceptadas": 10, "promedio_por_semana": 10.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 10.0, "plataformas": {"Roku": 10}, "semanas_activo": 1}, "Revista Central": {"total": 8, "web": 8, "app": 0, "rechazadas": 2, "aceptadas": 6, "promedio_por_semana": 2.0, "promedio_rechazadas_semana": 0.5, "promedio_aceptadas_semana": 1.5, "plataformas": {}, "semanas_activo": 4}, "Azteca Deportes": {"total": 8, "web": 2, "app": 6, "rechazadas": 3, "aceptadas": 3, "promedio_por_semana": 2.0, "promedio_rechazadas_semana": 0.75, "promedio_aceptadas_semana": 0.75, "plataformas": {"iOS": 3, "Android": 3}, "semanas_activo": 4}, "SEO LSN": {"total": 7, "web": 7, "app": 0, "rechazadas": 3, "aceptadas": 4, "promedio_por_semana": 3.5, "promedio_rechazadas_semana": 1.5, "promedio_aceptadas_semana": 2.0, "plataformas": {}, "semanas_activo": 2}, "Entretenimiento -app": {"total": 5, "web": 0, "app": 5, "rechazadas": 4, "aceptadas": 1, "promedio_por_semana": 5.0, "promedio_rechazadas_semana": 4.0, "promedio_aceptadas_semana": 1.0, "plataformas": {"Android": 3, "iOS": 2}, "semanas_activo": 1}, "ADN40-APP": {"total": 5, "web": 0, "app": 5, "rechazadas": 1, "aceptadas": 4, "promedio_por_semana": 5.0, "promedio_rechazadas_semana": 1.0, "promedio_aceptadas_semana": 4.0, "plataformas": {"Android": 5}, "semanas_activo": 1}, "Entretenimiento": {"total": 5, "web": 3, "app": 2, "rechazadas": 2, "aceptadas": 3, "promedio_por_semana": 1.67, "promedio_rechazadas_semana": 0.67, "promedio_aceptadas_semana": 1.0, "plataformas": {"Android": 2}, "semanas_activo": 3}, "ADN40-app": {"total": 4, "web": 0, "app": 4, "rechazadas": 0, "aceptadas": 4, "promedio_por_semana": 2.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 2.0, "plataformas": {"Android": 3, "iOS": 1}, "semanas_activo": 2}, "Azteca Noticias- app": {"total": 4, "web": 0, "app": 4, "rechazadas": 4, "aceptadas": 0, "promedio_por_semana": 4.0, "promedio_rechazadas_semana": 4.0, "promedio_aceptadas_semana": 0.0, "plataformas": {"Android": 4}, "semanas_activo": 1}, "Deportes-app": {"total": 4, "web": 0, "app": 4, "rechazadas": 0, "aceptadas": 3, "promedio_por_semana": 2.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 1.5, "plataformas": {"Android": 4}, "semanas_activo": 2}, "Entretenimiento-web": {"total": 4, "web": 4, "app": 0, "rechazadas": 4, "aceptadas": 0, "promedio_por_semana": 4.0, "promedio_rechazadas_semana": 4.0, "promedio_aceptadas_semana": 0.0, "plataformas": {}, "semanas_activo": 1}, "Entretenimiento-App": {"total": 3, "web": 0, "app": 3, "rechazadas": 2, "aceptadas": 1, "promedio_por_semana": 3.0, "promedio_rechazadas_semana": 2.0, "promedio_aceptadas_semana": 1.0, "plataformas": {"iOS": 3}, "semanas_activo": 1}, "Data Log-in": {"total": 3, "web": 0, "app": 2, "rechazadas": 1, "aceptadas": 2, "promedio_por_semana": 1.5, "promedio_rechazadas_semana": 0.5, "promedio_aceptadas_semana": 1.0, "plataformas": {"iOS": 1, "Android": 1}, "semanas_activo": 2}, "Azteca-Noticias": {"total": 3, "web": 0, "app": 3, "rechazadas": 2, "aceptadas": 1, "promedio_por_semana": 3.0, "promedio_rechazadas_semana": 2.0, "promedio_aceptadas_semana": 1.0, "plataformas": {"iOS": 2, "Android": 1}, "semanas_activo": 1}, "USA": {"total": 3, "web": 3, "app": 0, "rechazadas": 2, "aceptadas": 1, "promedio_por_semana": 1.5, "promedio_rechazadas_semana": 1.0, "promedio_aceptadas_semana": 0.5, "plataformas": {}, "semanas_activo": 2}, "Deportes": {"total": 2, "web": 1, "app": 1, "rechazadas": 1, "aceptadas": 1, "promedio_por_semana": 1.0, "promedio_rechazadas_semana": 0.5, "promedio_aceptadas_semana": 0.5, "plataformas": {"Android": 1}, "semanas_activo": 2}, "Digital": {"total": 2, "web": 0, "app": 0, "rechazadas": 0, "aceptadas": 0, "promedio_por_semana": 2.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 0.0, "plataformas": {}, "semanas_activo": 1}, "BLOQUEADA-QA": {"total": 2, "web": 0, "app": 0, "rechazadas": 0, "aceptadas": 0, "promedio_por_semana": 2.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 0.0, "plataformas": {}, "semanas_activo": 1}, "M\u00f3vil": {"total": 2, "web": 0, "app": 0, "rechazadas": 0, "aceptadas": 0, "promedio_por_semana": 2.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 0.0, "plataformas": {}, "semanas_activo": 1}, "Entretenimiento web": {"total": 2, "web": 2, "app": 0, "rechazadas": 0, "aceptadas": 2, "promedio_por_semana": 2.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 2.0, "plataformas": {}, "semanas_activo": 1}, "Research": {"total": 2, "web": 0, "app": 2, "rechazadas": 0, "aceptadas": 2, "promedio_por_semana": 2.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 2.0, "plataformas": {"iOS": 1, "Android": 1}, "semanas_activo": 1}, "Entretenimiento-apps": {"total": 2, "web": 0, "app": 2, "rechazadas": 0, "aceptadas": 1, "promedio_por_semana": 2.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 1.0, "plataformas": {"Android": 1, "iOS": 1}, "semanas_activo": 1}, "Entretenimiento Web": {"total": 1, "web": 1, "app": 0, "rechazadas": 0, "aceptadas": 1, "promedio_por_semana": 1.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 1.0, "plataformas": {}, "semanas_activo": 1}, "ADN40-web": {"total": 1, "web": 1, "app": 0, "rechazadas": 1, "aceptadas": 0, "promedio_por_semana": 1.0, "promedio_rechazadas_semana": 1.0, "promedio_aceptadas_semana": 0.0, "plataformas": {}, "semanas_activo": 1}, "BLOQUEADA-QA, ReadyToQA": {"total": 1, "web": 0, "app": 0, "rechazadas": 0, "aceptadas": 0, "promedio_por_semana": 1.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 0.0, "plataformas": {}, "semanas_activo": 1}, "TVAARQ-126": {"total": 1, "web": 0, "app": 0, "rechazadas": 0, "aceptadas": 0, "promedio_por_semana": 1.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 0.0, "plataformas": {}, "semanas_activo": 1}, "Revisi\u00f3n de servicios superapp para secci\u00f3n de podcast": {"total": 1, "web": 0, "app": 0, "rechazadas": 0, "aceptadas": 0, "promedio_por_semana": 1.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 0.0, "plataformas": {}, "semanas_activo": 1}, "Ninguna": {"total": 1, "web": 0, "app": 0, "rechazadas": 0, "aceptadas": 0, "promedio_por_semana": 1.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 0.0, "plataformas": {}, "semanas_activo": 1}, "TVAADN-112": {"total": 1, "web": 0, "app": 0, "rechazadas": 0, "aceptadas": 0, "promedio_por_semana": 1.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 0.0, "plataformas": {}, "semanas_activo": 1}, "<App> Android, Error En vivo": {"total": 1, "web": 0, "app": 0, "rechazadas": 0, "aceptadas": 0, "promedio_por_semana": 1.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 0.0, "plataformas": {}, "semanas_activo": 1}, "TVAADN-110": {"total": 1, "web": 0, "app": 0, "rechazadas": 0, "aceptadas": 0, "promedio_por_semana": 1.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 0.0, "plataformas": {}, "semanas_activo": 1}, "<App> Android, Error en inicio de sesi\u00f3n adn40": {"total": 1, "web": 0, "app": 0, "rechazadas": 0, "aceptadas": 0, "promedio_por_semana": 1.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 0.0, "plataformas": {}, "semanas_activo": 1}, "Entretenimiento ctv\u00b4s": {"total": 1, "web": 1, "app": 0, "rechazadas": 0, "aceptadas": 1, "promedio_por_semana": 1.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 1.0, "plataformas": {}, "semanas_activo": 1}, "Azteca deportes": {"total": 1, "web": 0, "app": 1, "rechazadas": 0, "aceptadas": 1, "promedio_por_semana": 1.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 1.0, "plataformas": {"Android": 1}, "semanas_activo": 1}, "Entretenimiento apps": {"total": 1, "web": 0, "app": 1, "rechazadas": 0, "aceptadas": 1, "promedio_por_semana": 1.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 1.0, "plataformas": {"Android": 1}, "semanas_activo": 1}, "Enretenimiento-app\u00b4s": {"total": 1, "web": 0, "app": 1, "rechazadas": 0, "aceptadas": 1, "promedio_por_semana": 1.0, "promedio_rechazadas_semana": 0.0, "promedio_aceptadas_semana": 1.0, "plataformas": {"Android": 1}, "semanas_activo": 1}}, "platforms": {"Android": 65, "iOS": 33, "GoogleTV": 27, "Fire TV": 19, "Apple TV": 10, "Roku": 10}, "weeks_list": ["tarjetas semana 26mayo-30mayo", "tarjetas semana 19mayo-23mayo", "tarjetas semana 12mayo-16mayo", "tarjetas semana 5 mayo- 9 mayo", "tarjetas semana 21 abr-25 abr", "tarjetas semana 28abr-2mayo", "tarjetas semana 14abril-16 abri", "tarjetas semana 7 abril-11abril", "tarjetas semana 31mar- 4abril", "tarjetas semana 24mar-28mar"], "total_weeks": 10};
 
-        // Función para cambiar tabs
+        // Common Plotly layout options for consistency
+        const commonLayout = {
+            font: {
+                family: 'Inter, sans-serif',
+                size: 12,
+                color: 'var(--text-dark)'
+            },
+            paper_bgcolor: 'var(--card-background)',
+            plot_bgcolor: 'var(--card-background)',
+            margin: { t: 60, b: 80, l: 60, r: 30 },
+            hovermode: 'closest',
+            title: {
+                font: {
+                    size: 18,
+                    color: 'var(--text-dark)'
+                },
+                x: 0.05, // Align title to left
+                xanchor: 'left'
+            },
+            xaxis: {
+                showgrid: false,
+                zeroline: false,
+                linecolor: 'var(--border-light)',
+                linewidth: 1,
+                tickfont: { size: 10 }
+            },
+            yaxis: {
+                showgrid: true,
+                gridcolor: '#f0f0f0',
+                zeroline: false,
+                linecolor: 'var(--border-light)',
+                linewidth: 1,
+                tickfont: { size: 10 }
+            },
+            legend: {
+                orientation: 'h',
+                xanchor: 'center',
+                x: 0.5,
+                y: -0.2, // Below the chart
+                font: { size: 10 }
+            }
+        };
+
+        // Function to change tabs
         function showTab(tabName) {
             // Ocultar todos los tabs
             const tabs = document.querySelectorAll('.tab-content');
@@ -1387,9 +1585,17 @@
             document.getElementById(tabName).classList.add('active');
 
             // Activar botón correspondiente
-            // event.target will be the button clicked, if called from onclick in HTML
-            // If called programmatically, we need to find the button
-            const clickedButton = Array.from(document.querySelectorAll('.tab-button')).find(btn => btn.textContent.toLowerCase().includes(tabName.replace('devs', 'desarrolladores').toLowerCase()));
+            const buttonTextMap = {
+                'resumen': 'Resumen General',
+                'qa': 'QA',
+                'web': 'Web',
+                'app': 'App',
+                'devs': 'Desarrolladores',
+                'pm': 'PM',
+                'sites': 'Sitios',
+                'weekly': 'Vista Semanal'
+            };
+            const clickedButton = Array.from(document.querySelectorAll('.tab-button')).find(btn => btn.textContent.includes(buttonTextMap[tabName]));
             if (clickedButton) {
                 clickedButton.classList.add('active');
             }
@@ -1423,25 +1629,26 @@
                     y: [allStats.web.historical.total_revisadas, allStats.app.historical.total_revisadas],
                     name: 'Total Revisadas',
                     type: 'bar',
-                    marker: { color: '#667eea' }
+                    marker: { color: 'var(--primary-color)' }
                 },
                 {
                     x: ['Web', 'App'],
                     y: [allStats.web.historical.total_rechazadas, allStats.app.historical.total_rechazadas],
                     name: 'Rechazadas',
                     type: 'bar',
-                    marker: { color: '#e74c3c' }
+                    marker: { color: 'var(--danger-color)' }
                 },
                 {
                     x: ['Web', 'App'],
                     y: [allStats.web.historical.total_aceptadas, allStats.app.historical.total_aceptadas],
                     name: 'Aceptadas',
                     type: 'bar',
-                    marker: { color: '#27ae60' }
+                    marker: { color: 'var(--success-color)' }
                 }
             ];
 
             const summaryLayout = {
+                ...commonLayout,
                 title: 'Resumen General - Web vs App',
                 barmode: 'group',
                 height: 400
@@ -1455,13 +1662,30 @@
                 values: Object.values(allStats.platforms),
                 type: 'pie',
                 hole: 0.4,
-                textposition: 'inside',
-                textinfo: 'label+percent'
+                textposition: 'outside', // Changed to outside for better readability
+                textinfo: 'label+percent',
+                marker: {
+                    colors: [
+                        '#4A00E0', '#8E2DE2', '#00C9FF', '#FF8C00', '#20B2AA',
+                        '#FF6347', '#4682B4', '#DA70D6', '#3CB371', '#BA55D3'
+                    ]
+                },
+                hoverinfo: 'label+value+percent',
+                pull: [0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0] // Slightly pull out the first slice
             };
 
             const platformLayout = {
+                ...commonLayout,
                 title: 'Distribución por Plataforma',
-                height: 400
+                height: 400,
+                showlegend: true,
+                legend: {
+                    orientation: 'h',
+                    xanchor: 'center',
+                    x: 0.5,
+                    y: -0.2, // Below the chart
+                    font: { size: 10 }
+                }
             };
 
             Plotly.newPlot('platformChart', [platformData], platformLayout);
@@ -1478,14 +1702,16 @@
                 type: 'scatter',
                 mode: 'lines+markers',
                 name: 'Porcentaje de Rechazo',
-                line: { color: '#667eea', width: 3 },
-                marker: { size: 8 }
+                line: { color: 'var(--primary-color)', width: 3, shape: 'spline' },
+                marker: { size: 8, symbol: 'circle', color: 'var(--primary-color)', line: { width: 1, color: 'white' } },
+                hovertemplate: 'Semana: %{x}<br>Rechazo: %{y:.2f}%<extra></extra>'
             };
 
             const webLayout = {
+                ...commonLayout,
                 title: 'Tendencia de Rechazo Web por Semana',
                 xaxis: { title: 'Semana' },
-                yaxis: { title: 'Porcentaje de Rechazo (%)' },
+                yaxis: { title: 'Porcentaje de Rechazo (%)', range: [0, Math.max(...webData.map(d => d.porcentaje_rechazo)) * 1.2 || 100] },
                 height: 400
             };
 
@@ -1503,14 +1729,16 @@
                 type: 'scatter',
                 mode: 'lines+markers',
                 name: 'Porcentaje de Rechazo',
-                line: { color: '#e74c3c', width: 3 },
-                marker: { size: 8 }
+                line: { color: 'var(--danger-color)', width: 3, shape: 'spline' },
+                marker: { size: 8, symbol: 'square', color: 'var(--danger-color)', line: { width: 1, color: 'white' } },
+                hovertemplate: 'Semana: %{x}<br>Rechazo: %{y:.2f}%<extra></extra>'
             };
 
             const appLayout = {
+                ...commonLayout,
                 title: 'Tendencia de Rechazo App por Semana',
                 xaxis: { title: 'Semana' },
-                yaxis: { title: 'Porcentaje de Rechazo (%)' },
+                yaxis: { title: 'Porcentaje de Rechazo (%)', range: [0, Math.max(...appData.map(d => d.porcentaje_rechazo)) * 1.2 || 100] },
                 height: 400
             };
 
@@ -1529,32 +1757,33 @@
                     y: top5Web.map(([dev, data]) => data.total_tarjetas),
                     name: 'Web - Total',
                     type: 'bar',
-                    marker: { color: '#667eea' }
+                    marker: { color: 'var(--primary-color)' }
                 },
                 {
                     x: top5Web.map(([dev, data]) => dev),
                     y: top5Web.map(([dev, data]) => data.rechazadas),
                     name: 'Web - Rechazadas',
                     type: 'bar',
-                    marker: { color: '#a5b4fc' }
+                    marker: { color: 'rgba(74, 0, 224, 0.6)' } // Lighter primary
                 },
                 {
                     x: top5App.map(([dev, data]) => dev),
                     y: top5App.map(([dev, data]) => data.total_tarjetas),
                     name: 'App - Total',
                     type: 'bar',
-                    marker: { color: '#e74c3c' }
+                    marker: { color: 'var(--danger-color)' }
                 },
                 {
                     x: top5App.map(([dev, data]) => dev),
                     y: top5App.map(([dev, data]) => data.rechazadas),
                     name: 'App - Rechazadas',
                     type: 'bar',
-                    marker: { color: '#f1948a' }
+                    marker: { color: 'rgba(231, 76, 60, 0.6)' } // Lighter danger
                 }
             ];
 
             const layout = {
+                ...commonLayout,
                 title: 'Top 5 Desarrolladores - Comparación Web vs App',
                 barmode: 'group',
                 height: 500,
@@ -1576,7 +1805,8 @@
                     name: 'Alta',
                     type: 'scatter',
                     mode: 'lines+markers',
-                    line: { color: '#e74c3c' }
+                    line: { color: 'var(--danger-color)', width: 3, shape: 'spline' },
+                    marker: { size: 8 }
                 },
                 {
                     x: weeks.map(w => w.replace('tarjetas semana ', '')),
@@ -1584,7 +1814,8 @@
                     name: 'Media',
                     type: 'scatter',
                     mode: 'lines+markers',
-                    line: { color: '#f39c12' }
+                    line: { color: 'var(--warning-color)', width: 3, shape: 'spline' },
+                    marker: { size: 8 }
                 },
                 {
                     x: weeks.map(w => w.replace('tarjetas semana ', '')),
@@ -1592,11 +1823,13 @@
                     name: 'Baja',
                     type: 'scatter',
                     mode: 'lines+markers',
-                    line: { color: '#27ae60' }
+                    line: { color: 'var(--success-color)', width: 3, shape: 'spline' },
+                    marker: { size: 8 }
                 }
             ];
 
             const layout = {
+                ...commonLayout,
                 title: 'Evolución de Prioridades por Semana',
                 xaxis: { title: 'Semana' },
                 yaxis: { title: 'Número de Tarjetas' },
@@ -1616,18 +1849,19 @@
                     y: top10Sites.map(([site, data]) => data.web),
                     name: 'Web',
                     type: 'bar',
-                    marker: { color: '#667eea' }
+                    marker: { color: 'var(--primary-color)' }
                 },
                 {
                     x: top10Sites.map(([site, data]) => site),
                     y: top10Sites.map(([site, data]) => data.app),
                     name: 'App',
                     type: 'bar',
-                    marker: { color: '#e74c3c' }
+                    marker: { color: 'var(--danger-color)' }
                 }
             ];
 
             const layout = {
+                ...commonLayout,
                 title: 'Top 10 Sitios - Distribución Web vs App',
                 barmode: 'stack',
                 height: 400,
@@ -1652,28 +1886,28 @@
             html += '<div class="stats-grid">';
             html += '<div class="metric-group">';
             html += '<h4>QA</h4>';
-            html += '<p>Total tarjetas: ' + weekData.qa.total_semana + '</p>';
-            html += '<p>Total rechazadas: ' + weekData.qa.total_rechazadas_semana + '</p>';
+            html += '<p>Total tarjetas: <strong>' + weekData.qa.total_semana + '</strong></p>';
+            html += '<p>Total rechazadas: <strong>' + weekData.qa.total_rechazadas_semana + '</strong></p>';
             html += '</div>';
             html += '<div class="metric-group">';
             html += '<h4>Web</h4>';
-            html += '<p>Revisadas: ' + weekData.web.revisadas + '</p>';
-            html += '<p>Aceptadas: ' + weekData.web.aceptadas + '</p>';
-            html += '<p>Rechazadas: ' + weekData.web.rechazadas + '</p>';
-            html += '<p>% Rechazo: ' + weekData.web.porcentaje_rechazo + '%</p>';
+            html += '<p>Revisadas: <strong>' + weekData.web.revisadas + '</strong></p>';
+            html += '<p>Aceptadas: <strong>' + weekData.web.aceptadas + '</strong></p>';
+            html += '<p>Rechazadas: <strong>' + weekData.web.rechazadas + '</strong></p>';
+            html += '<p>% Rechazo: <span class="highlight">' + weekData.web.porcentaje_rechazo + '%</span></p>';
             html += '</div>';
             html += '<div class="metric-group">';
             html += '<h4>App</h4>';
-            html += '<p>Revisadas: ' + weekData.app.revisadas + '</p>';
-            html += '<p>Aceptadas: ' + weekData.app.aceptadas + '</p>';
-            html += '<p>Rechazadas: ' + weekData.app.rechazadas + '</p>';
-            html += '<p>% Rechazo: ' + weekData.app.porcentaje_rechazo + '%</p>';
+            html += '<p>Revisadas: <strong>' + weekData.app.revisadas + '</strong></p>';
+            html += '<p>Aceptadas: <strong>' + weekData.app.aceptadas + '</strong></p>';
+            html += '<p>Rechazadas: <strong>' + weekData.app.rechazadas + '</strong></p>';
+            html += '<p>% Rechazo: <span class="highlight">' + weekData.app.porcentaje_rechazo + '%</span></p>';
             html += '</div>';
             html += '<div class="metric-group">';
             html += '<h4>Prioridades</h4>';
-            html += '<p>Alta: ' + weekData.pm.alta + '</p>';
-            html += '<p>Media: ' + weekData.pm.media + '</p>';
-            html += '<p>Baja: ' + weekData.pm.baja + '</p>';
+            html += '<p>Alta: <strong>' + weekData.pm.alta + '</strong></p>';
+            html += '<p>Media: <strong>' + weekData.pm.media + '</strong></p>';
+            html += '<p>Baja: <strong>' + weekData.pm.baja + '</strong></p>';
             html += '</div>';
             html += '</div>';
             html += '</div>';
@@ -1698,7 +1932,11 @@
 
             for (const [qa, count] of Object.entries(weekData.tarjetas_por_qa)) {
                 const rechazadas = weekData.rechazadas_por_qa[qa] || 0;
-                html += '<tr><td>' + qa + '</td><td>' + count + '</td><td>' + rechazadas + '</td></tr>';
+                html += `<tr>
+                            <td data-label="QA/PM">${qa}</td>
+                            <td data-label="Tarjetas Revisadas">${count}</td>
+                            <td data-label="Tarjetas Rechazadas">${rechazadas}</td>
+                         </tr>`;
             }
 
             html += '</tbody></table></div>';
@@ -1732,23 +1970,23 @@
                         <tbody>`;
 
             if (!weeklyDetails || Object.keys(weeklyDetails).length === 0) {
-                html += `<tr><td colspan="5">No hay datos semanales disponibles para este desarrollador.</td></tr>`;
+                html += `<tr><td colspan="5" style="text-align: center; color: var(--text-medium);">No hay datos semanales disponibles para este desarrollador.</td></tr>`;
             } else {
                 for (const week of allStats.weeks_list) { // Iterate through all weeks to show gaps
                     const data = weeklyDetails[week];
                     if (data) {
                         const percentageClass = data.porcentaje_rechazo > 20 ? 'high' : (data.porcentaje_rechazo > 10 ? 'medium' : 'low');
                         html += `<tr>
-                                    <td>${week}</td>
-                                    <td>${data.total_tarjetas}</td>
-                                    <td>${data.rechazadas}</td>
-                                    <td>${data.aceptadas}</td>
-                                    <td><span class="percentage ${percentageClass}">${data.porcentaje_rechazo}%</span></td>
+                                    <td data-label="Semana">${week}</td>
+                                    <td data-label="Total Tarjetas">${data.total_tarjetas}</td>
+                                    <td data-label="Rechazadas">${data.rechazadas}</td>
+                                    <td data-label="Aceptadas">${data.aceptadas}</td>
+                                    <td data-label="% Rechazo"><span class="percentage ${percentageClass}">${data.porcentaje_rechazo}%</span></td>
                                 </tr>`;
                     } else {
                         html += `<tr>
-                                    <td>${week}</td>
-                                    <td colspan="4" style="text-align: center; color: #888;">(No activo esta semana)</td>
+                                    <td data-label="Semana">${week}</td>
+                                    <td colspan="4" style="text-align: center; color: var(--text-medium); font-style: italic;">(No activo esta semana)</td>
                                 </tr>`;
                     }
                 }
@@ -1770,6 +2008,7 @@
 
         // Inicializar vista semanal con la primera semana
         if (allStats.weeks_list.length > 0) {
+            document.getElementById('weekSelector').value = allStats.weeks_list[0];
             updateWeeklyView();
         }
     </script>
