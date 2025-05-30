@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
 Dashboard QA Completo - Extrae TODAS las estadísticas solicitadas
-Con vistas semanales e históricas, presentando toda la información de forma expandida
-para facilitar la impresión a PDF.
+Con vistas semanales e históricas
 """
 
 import pandas as pd
@@ -32,9 +31,6 @@ class ComprehensiveQADashboard:
                     df['Semana'] = sheet_name
                     all_sheets.append(df)
                     self.weeks_list.append(sheet_name)
-            
-            # Sort weeks_list to ensure consistent order
-            self.weeks_list.sort()
 
             self.all_data = pd.concat(all_sheets, ignore_index=True)
             self.clean_data()
@@ -94,7 +90,7 @@ class ComprehensiveQADashboard:
             qa_stats['historical']['por_qa'][qa] = {
                 'total_revisadas': len(qa_data),
                 'total_rechazadas': len(qa_data[qa_data['Aceptado/Rechazado'] == 'RECHAZADO']),
-                'promedio_semanal': len(qa_data) / len(self.weeks_list) if len(self.weeks_list) > 0 else 0
+                'promedio_semanal': len(qa_data) / len(self.weeks_list)
             }
 
         qa_stats['historical']['total_rechazadas'] = len(self.all_data[self.all_data['Aceptado/Rechazado'] == 'RECHAZADO'])
@@ -198,7 +194,7 @@ class ComprehensiveQADashboard:
 
             # Calcular estadísticas por semana
             weekly_counts = dev_data.groupby('Semana').size()
-            promedio_semanal = weekly_counts.mean() if not weekly_counts.empty else 0
+            promedio_semanal = weekly_counts.mean()
 
             total = len(dev_data)
             rechazadas = len(dev_data[dev_data['Aceptado/Rechazado'] == 'RECHAZADO'])
@@ -228,7 +224,7 @@ class ComprehensiveQADashboard:
 
             # Calcular estadísticas por semana
             weekly_counts = dev_data.groupby('Semana').size()
-            promedio_semanal = weekly_counts.mean() if not weekly_counts.empty else 0
+            promedio_semanal = weekly_counts.mean()
 
             total = len(dev_data)
             rechazadas = len(dev_data[dev_data['Aceptado/Rechazado'] == 'RECHAZADO'])
@@ -275,18 +271,17 @@ class ComprehensiveQADashboard:
 
         # Calcular promedios
         num_semanas = len(self.weeks_list)
-        if num_semanas > 0:
-            pm_stats['prioridades']['alta']['promedio_semanal'] = round(pm_stats['prioridades']['alta']['total'] / num_semanas, 2)
-            pm_stats['prioridades']['media']['promedio_semanal'] = round(pm_stats['prioridades']['media']['total'] / num_semanas, 2)
-            pm_stats['prioridades']['baja']['promedio_semanal'] = round(pm_stats['prioridades']['baja']['total'] / num_semanas, 2)
+        pm_stats['prioridades']['alta']['promedio_semanal'] = round(pm_stats['prioridades']['alta']['total'] / num_semanas, 2)
+        pm_stats['prioridades']['media']['promedio_semanal'] = round(pm_stats['prioridades']['media']['total'] / num_semanas, 2)
+        pm_stats['prioridades']['baja']['promedio_semanal'] = round(pm_stats['prioridades']['baja']['total'] / num_semanas, 2)
 
         # Promedios por tipo
         web_por_semana = self.all_data[self.all_data['Web/App'] == 'Web'].groupby('Semana').size()
         app_por_semana = self.all_data[self.all_data['Web/App'] == 'App'].groupby('Semana').size()
 
-        pm_stats['promedio_semanal']['web'] = round(web_por_semana.mean(), 2) if not web_por_semana.empty else 0
-        pm_stats['promedio_semanal']['app'] = round(app_por_semana.mean(), 2) if not app_por_semana.empty else 0
-        pm_stats['promedio_semanal']['total'] = round((pm_stats['promedio_semanal']['web'] + pm_stats['promedio_semanal']['app']), 2)
+        pm_stats['promedio_semanal']['web'] = round(web_por_semana.mean(), 2)
+        pm_stats['promedio_semanal']['app'] = round(app_por_semana.mean(), 2)
+        pm_stats['promedio_semanal']['total'] = round((web_por_semana.mean() + app_por_semana.mean()), 2)
 
         # Desglose por semana
         for semana in self.weeks_list:
@@ -376,17 +371,13 @@ class ComprehensiveQADashboard:
         return stats
 
     def generate_html_dashboard(self, stats):
-        """
-        Genera el dashboard HTML con TODAS las métricas,
-        presentando toda la información de forma expandida
-        para facilitar la impresión a PDF.
-        """
+        """Genera el dashboard HTML con TODAS las métricas"""
         html = """<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard QA Completo - Todas las Métricas Expandidas</title>
+    <title>Dashboard QA Completo - Todas las Métricas</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
         * {
@@ -427,12 +418,40 @@ class ComprehensiveQADashboard:
             font-size: 0.9em;
         }
 
-        .section-container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
             margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .tab-button:hover {
+            background: #f5f5f5;
+            transform: translateY(-2px);
+        }
+
+        .tab-button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .stats-grid {
@@ -443,11 +462,16 @@ class ComprehensiveQADashboard:
         }
 
         .stat-card {
-            background: #f8f9fa;
+            background: white;
             padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
         }
 
         .stat-value {
@@ -475,14 +499,6 @@ class ComprehensiveQADashboard:
             border-bottom: 3px solid #667eea;
         }
 
-        .subsection-title {
-            font-size: 1.4em;
-            color: #333;
-            margin: 25px 0 15px 0;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
         table {
             width: 100%;
             background: white;
@@ -508,12 +524,8 @@ class ComprehensiveQADashboard:
             border-bottom: 1px solid #f0f0f0;
         }
 
-        tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-
         tr:hover {
-            background-color: #e6e9ed;
+            background-color: #f8f9fa;
         }
 
         tr:last-child td {
@@ -549,8 +561,6 @@ class ComprehensiveQADashboard:
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             margin-bottom: 30px;
-            /* Ensure charts themselves don't break across pages if possible */
-            page-break-inside: avoid;
         }
 
         .info-box {
@@ -559,7 +569,6 @@ class ComprehensiveQADashboard:
             padding: 20px;
             margin: 20px 0;
             border-radius: 8px;
-            page-break-inside: avoid; /* Keep info boxes together */
         }
 
         .metric-group {
@@ -567,7 +576,6 @@ class ComprehensiveQADashboard:
             padding: 20px;
             border-radius: 8px;
             margin: 10px 0;
-            page-break-inside: avoid; /* Keep metric groups together */
         }
 
         .metric-group h4 {
@@ -575,56 +583,32 @@ class ComprehensiveQADashboard:
             margin-bottom: 10px;
         }
 
+        .week-selector {
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .week-selector select {
+            padding: 8px 15px;
+            font-size: 1em;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
         .small-text {
             font-size: 0.85em;
             color: #65676b;
-        }
-
-        /* --- Print-specific styles --- */
-        @media print {
-            body {
-                -webkit-print-color-adjust: exact; /* Ensures backgrounds/gradients print */
-                color-adjust: exact;
-                font-size: 10pt; /* Adjust base font size for print */
-            }
-            .container {
-                padding: 0; /* Remove excess padding for print */
-            }
-            .header, .section-container, .chart-container, table, .info-box, .metric-group {
-                box-shadow: none; /* Remove shadows for cleaner print */
-                border-radius: 0; /* Remove border-radius for cleaner print */
-                margin-bottom: 15px; /* Reduce margin for compactness */
-                page-break-inside: avoid !important; /* Force elements to stay on one page if possible */
-            }
-            .section-title {
-                border-bottom: 2px solid #667eea; /* Slightly thinner border for print */
-                margin-top: 20px;
-                margin-bottom: 10px;
-            }
-            .subsection-title {
-                border-bottom: 1px solid #e0e0e0;
-                margin-top: 15px;
-                margin-bottom: 10px;
-            }
-            /* Plotly specific adjustments for print */
-            .plotly .modebar {
-                 display: none !important; /* Hide the Plotly toolbar */
-            }
-            .plotly .js-plotly-plot .plotly-fill,
-            .plotly .js-plotly-plot .plotly-line,
-            .plotly .js-plotly-plot .textpoint,
-            .plotly .js-plotly-plot .annotation-text {
-                fill: black !important; /* Ensure chart text/elements are black */
-                stroke: black !important; /* Ensure chart lines/borders are black */
-            }
-            .plotly .xtick text, .plotly .ytick text, .plotly .axis-title text {
-                fill: #333 !important; /* Ensure axis labels are dark */
-                font-size: 9pt !important; /* Adjust font size for axis labels */
-            }
-            .plotly .gtitle .g-text {
-                font-size: 14pt !important; /* Adjust chart title font size */
-                fill: #1c1e21 !important;
-            }
         }
     </style>
 </head>
@@ -636,8 +620,19 @@ class ComprehensiveQADashboard:
             <p class="timestamp">Total de semanas analizadas: """ + str(stats['total_weeks']) + """</p>
         </div>
 
-        <div class="section-container">
-            <h2 class="section-title">📈 Resumen General - Métricas Históricas</h2>
+        <div class="nav-tabs">
+            <button class="tab-button active" onclick="showTab('resumen')">📈 Resumen General</button>
+            <button class="tab-button" onclick="showTab('qa')">👥 QA</button>
+            <button class="tab-button" onclick="showTab('web')">🌐 Web</button>
+            <button class="tab-button" onclick="showTab('app')">📱 App</button>
+            <button class="tab-button" onclick="showTab('devs')">👨‍💻 Desarrolladores</button>
+            <button class="tab-button" onclick="showTab('pm')">📋 PM</button>
+            <button class="tab-button" onclick="showTab('sites')">🏢 Sitios</button>
+            <button class="tab-button" onclick="showTab('weekly')">📅 Vista Semanal</button>
+        </div>
+
+        <div id="resumen" class="tab-content active">
+            <h2 class="section-title">Resumen General - Métricas Históricas</h2>
 
             <div class="stats-grid">
                 <div class="stat-card">
@@ -669,14 +664,14 @@ class ComprehensiveQADashboard:
                 <div id="summaryChart"></div>
             </div>
 
-            <h3 class="subsection-title">Distribución por Plataforma</h3>
+            <h3 class="section-title">Distribución por Plataforma</h3>
             <div class="chart-container">
                 <div id="platformChart"></div>
             </div>
         </div>
 
-        <div class="section-container">
-            <h2 class="section-title">👥 Estadísticas Completas de QA</h2>
+        <div id="qa" class="tab-content">
+            <h2 class="section-title">Estadísticas Completas de QA</h2>
 
             <div class="info-box">
                 <h3>📊 Resumen Histórico de QA</h3>
@@ -684,7 +679,7 @@ class ComprehensiveQADashboard:
                 <p><strong>Total de tarjetas rechazadas:</strong> """ + str(stats['qa']['historical']['total_rechazadas']) + """</p>
             </div>
 
-            <h3 class="subsection-title">Detalle por QA (Histórico)</h3>
+            <h3>Detalle por QA (Histórico)</h3>
             <table>
                 <thead>
                     <tr>
@@ -714,51 +709,33 @@ class ComprehensiveQADashboard:
                 </tbody>
             </table>
 
-            <h3 class="subsection-title">Vista Semanal de QA (Todas las Semanas)</h3>"""
+            <h3>Vista Semanal de QA</h3>
+            <div class="week-selector">
+                <label>Seleccionar semana: </label>
+                <select id="qaWeekSelector" onchange="updateQAWeekView()">
+                    <option value="all">Todas las semanas</option>"""
 
-        # Vista Semanal de QA - Todas las semanas expandidas
         for week in stats['weeks_list']:
-            week_data = stats['qa']['weekly'][week]
-            html += f"""
-            <div class="info-box">
-                <h4>Detalle de {week}</h4>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>QA/PM</th>
-                            <th>Tarjetas Revisadas</th>
-                            <th>Tarjetas Rechazadas</th>
-                        </tr>
-                    </thead>
-                    <tbody>"""
-            for qa, count in week_data['tarjetas_por_qa'].items():
-                rechazadas = week_data['rechazadas_por_qa'].get(qa, 0)
-                html += f"""
-                        <tr>
-                            <td>{qa}</td>
-                            <td>{count}</td>
-                            <td>{rechazadas}</td>
-                        </tr>"""
-            html += """
-                    </tbody>
-                </table>
-            </div>"""
+            html += f'<option value="{week}">{week}</option>'
 
         html += """
+                </select>
+            </div>
+            <div id="qaWeeklyDetails"></div>
         </div>
 
-        <div class="section-container">
-            <h2 class="section-title">🌐 Estadísticas Completas Web</h2>
+        <div id="web" class="tab-content">
+            <h2 class="section-title">Estadísticas Completas Web</h2>
 
             <div class="metric-group">
                 <h4>📊 Totales Históricos Web</h4>
                 <p><strong>Número de tarjetas revisadas:</strong> """ + str(stats['web']['historical']['total_revisadas']) + """</p>
                 <p><strong>Número de tarjetas rechazadas:</strong> """ + str(stats['web']['historical']['total_rechazadas']) + """</p>
                 <p><strong>Número de tarjetas aceptadas:</strong> """ + str(stats['web']['historical']['total_aceptadas']) + """</p>
-                <p><strong>Porcentaje de rechazo:</strong> <span class="percentage """ + ('high' if stats['web']['historical']['porcentaje_rechazo'] > 20 else 'medium' if stats['web']['historical']['porcentaje_rechazo'] > 10 else 'low') + """">""" + str(stats['web']['historical']['porcentaje_rechazo']) + """%</span></p>
+                <p><strong>Porcentaje de rechazo:</strong> <span class="highlight">""" + str(stats['web']['historical']['porcentaje_rechazo']) + """%</span></p>
             </div>
 
-            <h3 class="subsection-title">Estadísticas Web por Semana</h3>
+            <h3>Estadísticas Web por Semana</h3>
             <table>
                 <thead>
                     <tr>
@@ -792,18 +769,18 @@ class ComprehensiveQADashboard:
             </div>
         </div>
 
-        <div class="section-container">
-            <h2 class="section-title">📱 Estadísticas Completas App</h2>
+        <div id="app" class="tab-content">
+            <h2 class="section-title">Estadísticas Completas App</h2>
 
             <div class="metric-group">
                 <h4>📱 Totales Históricos App</h4>
                 <p><strong>Número de tarjetas revisadas:</strong> """ + str(stats['app']['historical']['total_revisadas']) + """</p>
                 <p><strong>Número de tarjetas rechazadas:</strong> """ + str(stats['app']['historical']['total_rechazadas']) + """</p>
                 <p><strong>Número de tarjetas aceptadas:</strong> """ + str(stats['app']['historical']['total_aceptadas']) + """</p>
-                <p><strong>Porcentaje de rechazo:</strong> <span class="percentage """ + ('high' if stats['app']['historical']['porcentaje_rechazo'] > 20 else 'medium' if stats['app']['historical']['porcentaje_rechazo'] > 10 else 'low') + """">""" + str(stats['app']['historical']['porcentaje_rechazo']) + """%</span></p>
+                <p><strong>Porcentaje de rechazo:</strong> <span class="highlight">""" + str(stats['app']['historical']['porcentaje_rechazo']) + """%</span></p>
             </div>
 
-            <h3 class="subsection-title">Estadísticas App por Semana</h3>
+            <h3>Estadísticas App por Semana</h3>
             <table>
                 <thead>
                     <tr>
@@ -837,10 +814,10 @@ class ComprehensiveQADashboard:
             </div>
         </div>
 
-        <div class="section-container">
-            <h2 class="section-title">👨‍💻 Estadísticas Completas de Desarrolladores</h2>
+        <div id="devs" class="tab-content">
+            <h2 class="section-title">Estadísticas Completas de Desarrolladores</h2>
 
-            <h3 class="subsection-title">🌐 Desarrollo Web - Todas las métricas</h3>
+            <h3>🌐 Desarrollo Web - Todas las métricas</h3>
             <table>
                 <thead>
                     <tr>
@@ -876,7 +853,7 @@ class ComprehensiveQADashboard:
                 </tbody>
             </table>
 
-            <h3 class="subsection-title">📱 Desarrollo App - Todas las métricas</h3>
+            <h3>📱 Desarrollo App - Todas las métricas</h3>
             <table>
                 <thead>
                     <tr>
@@ -917,8 +894,8 @@ class ComprehensiveQADashboard:
             </div>
         </div>
 
-        <div class="section-container">
-            <h2 class="section-title">📋 Estadísticas Completas de Project Management</h2>
+        <div id="pm" class="tab-content">
+            <h2 class="section-title">Estadísticas Completas de Project Management</h2>
 
             <div class="stats-grid">
                 <div class="stat-card">
@@ -947,7 +924,7 @@ class ComprehensiveQADashboard:
                 <p><strong>Total:</strong> """ + str(stats['pm']['promedio_semanal']['total']) + """ tarjetas/semana</p>
             </div>
 
-            <h3 class="subsection-title">Desglose Semanal de Prioridades</h3>
+            <h3>Desglose Semanal de Prioridades</h3>
             <table>
                 <thead>
                     <tr>
@@ -982,8 +959,8 @@ class ComprehensiveQADashboard:
             </div>
         </div>
 
-        <div class="section-container">
-            <h2 class="section-title">🏢 Estadísticas Completas por Sitio</h2>
+        <div id="sites" class="tab-content">
+            <h2 class="section-title">Estadísticas Completas por Sitio</h2>
 
             <table>
                 <thead>
@@ -1028,55 +1005,59 @@ class ComprehensiveQADashboard:
             </div>
         </div>
 
-        <div class="section-container">
-            <h2 class="section-title">📅 Vista Semanal Completa (Todas las Semanas)</h2>"""
+        <div id="weekly" class="tab-content">
+            <h2 class="section-title">Vista Semanal Completa</h2>
 
-        # Vista Semanal Completa - Todas las semanas expandidas
+            <div class="week-selector">
+                <label>Seleccionar semana para análisis detallado: </label>
+                <select id="weekSelector" onchange="updateWeeklyView()">"""
+
         for week in stats['weeks_list']:
-            week_data = {
-                'qa': stats['qa']['weekly'][week],
-                'web': stats['web']['weekly'][week],
-                'app': stats['app']['weekly'][week],
-                'pm': stats['pm']['por_semana'][week]
-            }
-            html += f"""
-            <div class="info-box">
-                <h3>Resumen de {week}</h3>
-                <div class="stats-grid">
-                    <div class="metric-group">
-                        <h4>QA</h4>
-                        <p>Total tarjetas: {week_data['qa']['total_semana']}</p>
-                        <p>Total rechazadas: {week_data['qa']['total_rechazadas_semana']}</p>
-                    </div>
-                    <div class="metric-group">
-                        <h4>Web</h4>
-                        <p>Revisadas: {week_data['web']['revisadas']}</p>
-                        <p>Aceptadas: {week_data['web']['aceptadas']}</p>
-                        <p>Rechazadas: {week_data['web']['rechazadas']}</p>
-                        <p>% Rechazo: {week_data['web']['porcentaje_rechazo']}%</p>
-                    </div>
-                    <div class="metric-group">
-                        <h4>App</h4>
-                        <p>Revisadas: {week_data['app']['revisadas']}</p>
-                        <p>Aceptadas: {week_data['app']['aceptadas']}</p>
-                        <p>Rechazadas: {week_data['app']['rechazadas']}</p>
-                        <p>% Rechazo: {week_data['app']['porcentaje_rechazo']}%</p>
-                    </div>
-                    <div class="metric-group">
-                        <h4>Prioridades</h4>
-                        <p>Alta: {week_data['pm']['alta']}</p>
-                        <p>Media: {week_data['pm']['media']}</p>
-                        <p>Baja: {week_data['pm']['baja']}</p>
-                    </div>
-                </div>
-            </div>"""
+            html += f'<option value="{week}">{week}</option>'
+
         html += """
+                </select>
+            </div>
+
+            <div id="weeklyAnalysis"></div>
         </div>
     </div>
 
     <script>
         // Datos para los gráficos
         const allStats = """ + json.dumps(stats) + """;
+
+        // Función para cambiar tabs
+        function showTab(tabName) {
+            // Ocultar todos los tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Desactivar todos los botones
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Mostrar tab seleccionado
+            document.getElementById(tabName).classList.add('active');
+
+            // Activar botón correspondiente
+            event.target.classList.add('active');
+
+            // Cargar gráficos según el tab
+            if (tabName === 'resumen') {
+                loadSummaryCharts();
+            } else if (tabName === 'web') {
+                loadWebCharts();
+            } else if (tabName === 'app') {
+                loadAppCharts();
+            } else if (tabName === 'devs') {
+                loadDevCharts();
+            } else if (tabName === 'pm') {
+                loadPMCharts();
+            } else if (tabName === 'sites') {
+                loadSiteCharts();
+            }
+        }
 
         // Cargar gráficos de resumen
         function loadSummaryCharts() {
@@ -1087,40 +1068,28 @@ class ComprehensiveQADashboard:
                     y: [allStats.web.historical.total_revisadas, allStats.app.historical.total_revisadas],
                     name: 'Total Revisadas',
                     type: 'bar',
-                    marker: { color: '#667eea' },
-                    text: [allStats.web.historical.total_revisadas, allStats.app.historical.total_revisadas], /* Added for direct text on bars */
-                    textposition: 'auto', /* Added for direct text on bars */
-                    hoverinfo: 'x+y' /* Added for hover info */
+                    marker: { color: '#667eea' }
                 },
                 {
                     x: ['Web', 'App'],
                     y: [allStats.web.historical.total_rechazadas, allStats.app.historical.total_rechazadas],
                     name: 'Rechazadas',
                     type: 'bar',
-                    marker: { color: '#e74c3c' },
-                    text: [allStats.web.historical.total_rechazadas, allStats.app.historical.total_rechazadas], /* Added for direct text on bars */
-                    textposition: 'auto', /* Added for direct text on bars */
-                    hoverinfo: 'x+y' /* Added for hover info */
+                    marker: { color: '#e74c3c' }
                 },
                 {
                     x: ['Web', 'App'],
                     y: [allStats.web.historical.total_aceptadas, allStats.app.historical.total_aceptadas],
                     name: 'Aceptadas',
                     type: 'bar',
-                    marker: { color: '#27ae60' },
-                    text: [allStats.web.historical.total_aceptadas, allStats.app.historical.total_aceptadas], /* Added for direct text on bars */
-                    textposition: 'auto', /* Added for direct text on bars */
-                    hoverinfo: 'x+y' /* Added for hover info */
+                    marker: { color: '#27ae60' }
                 }
             ];
 
             const summaryLayout = {
                 title: 'Resumen General - Web vs App',
                 barmode: 'group',
-                height: 400,
-                xaxis: { title: 'Plataforma' },
-                yaxis: { title: 'Número de Tarjetas' },
-                margin: { l: 70, r: 50, b: 80, t: 70, pad: 4 } // Adjusted margins
+                height: 400
             };
 
             Plotly.newPlot('summaryChart', summaryData, summaryLayout);
@@ -1131,15 +1100,13 @@ class ComprehensiveQADashboard:
                 values: Object.values(allStats.platforms),
                 type: 'pie',
                 hole: 0.4,
-                textposition: 'outside', /* Changed to outside for better visibility in print */
-                textinfo: 'label+percent',
-                automargin: true /* Added for automatic margin adjustment */
+                textposition: 'inside',
+                textinfo: 'label+percent'
             };
 
             const platformLayout = {
                 title: 'Distribución por Plataforma',
-                height: 500, /* Increased height for better pie chart rendering */
-                margin: { l: 50, r: 50, b: 50, t: 70, pad: 4 } // Adjusted margins
+                height: 400
             };
 
             Plotly.newPlot('platformChart', [platformData], platformLayout);
@@ -1157,18 +1124,14 @@ class ComprehensiveQADashboard:
                 mode: 'lines+markers',
                 name: 'Porcentaje de Rechazo',
                 line: { color: '#667eea', width: 3 },
-                marker: { size: 8 },
-                text: webData.map(d => d.porcentaje_rechazo + '%'), /* Added text for points */
-                textposition: 'top center', /* Position text above points */
-                hoverinfo: 'x+y+text'
+                marker: { size: 8 }
             };
 
             const webLayout = {
                 title: 'Tendencia de Rechazo Web por Semana',
                 xaxis: { title: 'Semana' },
-                yaxis: { title: 'Porcentaje de Rechazo (%)', range: [0, 100] }, /* Set range for consistency */
-                height: 400,
-                margin: { l: 70, r: 50, b: 80, t: 70, pad: 4 } // Adjusted margins
+                yaxis: { title: 'Porcentaje de Rechazo (%)' },
+                height: 400
             };
 
             Plotly.newPlot('webTrendChart', [webTrace], webLayout);
@@ -1186,18 +1149,14 @@ class ComprehensiveQADashboard:
                 mode: 'lines+markers',
                 name: 'Porcentaje de Rechazo',
                 line: { color: '#e74c3c', width: 3 },
-                marker: { size: 8 },
-                text: appData.map(d => d.porcentaje_rechazo + '%'), /* Added text for points */
-                textposition: 'top center', /* Position text above points */
-                hoverinfo: 'x+y+text'
+                marker: { size: 8 }
             };
 
             const appLayout = {
                 title: 'Tendencia de Rechazo App por Semana',
                 xaxis: { title: 'Semana' },
-                yaxis: { title: 'Porcentaje de Rechazo (%)', range: [0, 100] }, /* Set range for consistency */
-                height: 400,
-                margin: { l: 70, r: 50, b: 80, t: 70, pad: 4 } // Adjusted margins
+                yaxis: { title: 'Porcentaje de Rechazo (%)' },
+                height: 400
             };
 
             Plotly.newPlot('appTrendChart', [appTrace], appLayout);
@@ -1215,40 +1174,28 @@ class ComprehensiveQADashboard:
                     y: top5Web.map(([dev, data]) => data.total_tarjetas),
                     name: 'Web - Total',
                     type: 'bar',
-                    marker: { color: '#667eea' },
-                    text: top5Web.map(([dev, data]) => data.total_tarjetas),
-                    textposition: 'auto',
-                    hoverinfo: 'x+y'
+                    marker: { color: '#667eea' }
                 },
                 {
                     x: top5Web.map(([dev, data]) => dev),
                     y: top5Web.map(([dev, data]) => data.rechazadas),
                     name: 'Web - Rechazadas',
                     type: 'bar',
-                    marker: { color: '#a5b4fc' },
-                    text: top5Web.map(([dev, data]) => data.rechazadas),
-                    textposition: 'auto',
-                    hoverinfo: 'x+y'
+                    marker: { color: '#a5b4fc' }
                 },
                 {
                     x: top5App.map(([dev, data]) => dev),
                     y: top5App.map(([dev, data]) => data.total_tarjetas),
                     name: 'App - Total',
                     type: 'bar',
-                    marker: { color: '#e74c3c' },
-                    text: top5App.map(([dev, data]) => data.total_tarjetas),
-                    textposition: 'auto',
-                    hoverinfo: 'x+y'
+                    marker: { color: '#e74c3c' }
                 },
                 {
                     x: top5App.map(([dev, data]) => dev),
                     y: top5App.map(([dev, data]) => data.rechazadas),
                     name: 'App - Rechazadas',
                     type: 'bar',
-                    marker: { color: '#f1948a' },
-                    text: top5App.map(([dev, data]) => data.rechazadas),
-                    textposition: 'auto',
-                    hoverinfo: 'x+y'
+                    marker: { color: '#f1948a' }
                 }
             ];
 
@@ -1256,9 +1203,7 @@ class ComprehensiveQADashboard:
                 title: 'Top 5 Desarrolladores - Comparación Web vs App',
                 barmode: 'group',
                 height: 500,
-                xaxis: { tickangle: -45, title: 'Desarrollador' },
-                yaxis: { title: 'Número de Tarjetas' },
-                margin: { l: 70, r: 50, b: 120, t: 70, pad: 4 } // Adjusted margins for labels
+                xaxis: { tickangle: -45 }
             };
 
             Plotly.newPlot('devComparisonChart', traces, layout);
@@ -1276,10 +1221,7 @@ class ComprehensiveQADashboard:
                     name: 'Alta',
                     type: 'scatter',
                     mode: 'lines+markers',
-                    line: { color: '#e74c3c' },
-                    marker: { size: 8 },
-                    text: pmData.map(d => d.alta),
-                    textposition: 'top center'
+                    line: { color: '#e74c3c' }
                 },
                 {
                     x: weeks.map(w => w.replace('tarjetas semana ', '')),
@@ -1287,10 +1229,7 @@ class ComprehensiveQADashboard:
                     name: 'Media',
                     type: 'scatter',
                     mode: 'lines+markers',
-                    line: { color: '#f39c12' },
-                    marker: { size: 8 },
-                    text: pmData.map(d => d.media),
-                    textposition: 'top center'
+                    line: { color: '#f39c12' }
                 },
                 {
                     x: weeks.map(w => w.replace('tarjetas semana ', '')),
@@ -1298,10 +1237,7 @@ class ComprehensiveQADashboard:
                     name: 'Baja',
                     type: 'scatter',
                     mode: 'lines+markers',
-                    line: { color: '#27ae60' },
-                    marker: { size: 8 },
-                    text: pmData.map(d => d.baja),
-                    textposition: 'top center'
+                    line: { color: '#27ae60' }
                 }
             ];
 
@@ -1309,8 +1245,7 @@ class ComprehensiveQADashboard:
                 title: 'Evolución de Prioridades por Semana',
                 xaxis: { title: 'Semana' },
                 yaxis: { title: 'Número de Tarjetas' },
-                height: 400,
-                margin: { l: 70, r: 50, b: 80, t: 70, pad: 4 } // Adjusted margins
+                height: 400
             };
 
             Plotly.newPlot('priorityChart', traces, layout);
@@ -1326,20 +1261,14 @@ class ComprehensiveQADashboard:
                     y: top10Sites.map(([site, data]) => data.web),
                     name: 'Web',
                     type: 'bar',
-                    marker: { color: '#667eea' },
-                    text: top10Sites.map(([site, data]) => data.web),
-                    textposition: 'auto',
-                    hoverinfo: 'x+y'
+                    marker: { color: '#667eea' }
                 },
                 {
                     x: top10Sites.map(([site, data]) => site),
                     y: top10Sites.map(([site, data]) => data.app),
                     name: 'App',
                     type: 'bar',
-                    marker: { color: '#e74c3c' },
-                    text: top10Sites.map(([site, data]) => data.app),
-                    textposition: 'auto',
-                    hoverinfo: 'x+y'
+                    marker: { color: '#e74c3c' }
                 }
             ];
 
@@ -1347,35 +1276,99 @@ class ComprehensiveQADashboard:
                 title: 'Top 10 Sitios - Distribución Web vs App',
                 barmode: 'stack',
                 height: 400,
-                xaxis: { tickangle: -45, title: 'Sitio' },
-                yaxis: { title: 'Número de Tarjetas' },
-                margin: { l: 70, r: 50, b: 120, t: 70, pad: 4 } // Adjusted margins for labels
+                xaxis: { tickangle: -45 }
             };
 
             Plotly.newPlot('siteChart', traces, layout);
         }
 
-        // Cargar todos los gráficos al cargar la página
-        window.onload = function() {
-            loadSummaryCharts();
-            loadWebCharts();
-            loadAppCharts();
-            loadDevCharts();
-            loadPMCharts();
-            loadSiteCharts();
-        };
+        // Actualizar vista semanal
+        function updateWeeklyView() {
+            const selectedWeek = document.getElementById('weekSelector').value;
+            const weekData = {
+                qa: allStats.qa.weekly[selectedWeek],
+                web: allStats.web.weekly[selectedWeek],
+                app: allStats.app.weekly[selectedWeek],
+                pm: allStats.pm.por_semana[selectedWeek]
+            };
+
+            let html = '<div class="info-box">';
+            html += '<h3>Resumen de ' + selectedWeek + '</h3>';
+            html += '<div class="stats-grid">';
+            html += '<div class="metric-group">';
+            html += '<h4>QA</h4>';
+            html += '<p>Total tarjetas: ' + weekData.qa.total_semana + '</p>';
+            html += '<p>Total rechazadas: ' + weekData.qa.total_rechazadas_semana + '</p>';
+            html += '</div>';
+            html += '<div class="metric-group">';
+            html += '<h4>Web</h4>';
+            html += '<p>Revisadas: ' + weekData.web.revisadas + '</p>';
+            html += '<p>Aceptadas: ' + weekData.web.aceptadas + '</p>';
+            html += '<p>Rechazadas: ' + weekData.web.rechazadas + '</p>';
+            html += '<p>% Rechazo: ' + weekData.web.porcentaje_rechazo + '%</p>';
+            html += '</div>';
+            html += '<div class="metric-group">';
+            html += '<h4>App</h4>';
+            html += '<p>Revisadas: ' + weekData.app.revisadas + '</p>';
+            html += '<p>Aceptadas: ' + weekData.app.aceptadas + '</p>';
+            html += '<p>Rechazadas: ' + weekData.app.rechazadas + '</p>';
+            html += '<p>% Rechazo: ' + weekData.app.porcentaje_rechazo + '%</p>';
+            html += '</div>';
+            html += '<div class="metric-group">';
+            html += '<h4>Prioridades</h4>';
+            html += '<p>Alta: ' + weekData.pm.alta + '</p>';
+            html += '<p>Media: ' + weekData.pm.media + '</p>';
+            html += '<p>Baja: ' + weekData.pm.baja + '</p>';
+            html += '</div>';
+            html += '</div>';
+            html += '</div>';
+
+            document.getElementById('weeklyAnalysis').innerHTML = html;
+        }
+
+        // Actualizar vista semanal de QA
+        function updateQAWeekView() {
+            const selector = document.getElementById('qaWeekSelector');
+            const selectedWeek = selector.value;
+
+            if (selectedWeek === 'all') {
+                document.getElementById('qaWeeklyDetails').innerHTML = '';
+                return;
+            }
+
+            const weekData = allStats.qa.weekly[selectedWeek];
+            let html = '<div class="info-box">';
+            html += '<h4>Detalle de ' + selectedWeek + '</h4>';
+            html += '<table><thead><tr><th>QA/PM</th><th>Tarjetas Revisadas</th><th>Tarjetas Rechazadas</th></tr></thead><tbody>';
+
+            for (const [qa, count] of Object.entries(weekData.tarjetas_por_qa)) {
+                const rechazadas = weekData.rechazadas_por_qa[qa] || 0;
+                html += '<tr><td>' + qa + '</td><td>' + count + '</td><td>' + rechazadas + '</td></tr>';
+            }
+
+            html += '</tbody></table></div>';
+            document.getElementById('qaWeeklyDetails').innerHTML = html;
+        }
+
+        // Cargar gráficos iniciales
+        loadSummaryCharts();
+
+        // Inicializar vista semanal con la primera semana
+        if (allStats.weeks_list.length > 0) {
+            updateWeeklyView();
+        }
     </script>
 </body>
 </html>"""
 
         return html
 
-    def save_dashboard(self, filename='qa_dashboard_completo_expandido.html'):
+    def save_dashboard(self, filename='qa_dashboard_completo.html'):
         """Guarda el dashboard completo como archivo HTML"""
         print("\nGenerando todas las estadísticas...")
         stats = self.generate_all_statistics()
 
-        print("Creando dashboard HTML completo y expandido...")
+        print("Creando dashboard HTML completo...")
         html_content = self.generate_html_dashboard(stats)
 
         try:
@@ -1384,15 +1377,13 @@ class ComprehensiveQADashboard:
             print(f"Dashboard guardado exitosamente como '{filename}'")
             # Abre el archivo automáticamente en el navegador predeterminado
             webbrowser.open(f'file:///{os.path.abspath(filename)}')
-            print("\nPor favor, abre el archivo HTML en tu navegador y utiliza la función 'Imprimir a PDF' (Ctrl+P o Cmd+P) para generar el PDF.")
-            print("Asegúrate de seleccionar 'Gráficos de fondo' o 'Background graphics' en las opciones de impresión para incluir colores y estilos.")
         except Exception as e:
             print(f"Error al guardar o abrir el dashboard: {e}")
 
 if __name__ == "__main__":
     try:
         dashboard = ComprehensiveQADashboard()
-        dashboard.save_dashboard()
+        dashboard.save_dashboard(filename="index.html")
     except FileNotFoundError:
         print("El archivo 'reporte_tarjetas.xlsx' no fue encontrado. Asegúrate de que esté en la misma carpeta que el script.")
     except Exception as e:
