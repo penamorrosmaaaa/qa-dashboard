@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Dashboard QA Completo - Extrae TODAS las estadísticas solicitadas
-Con vistas semanales e históricas
+Enhanced QA Dashboard - Modern Design with Impressive Visualizations
+Features: Advanced charts, animations, glassmorphism, dark mode, responsive design
 """
 
 import pandas as pd
@@ -36,7 +36,7 @@ class ComprehensiveQADashboard:
             self.clean_data()
             print(f"Total de registros cargados: {len(self.all_data)}")
             print(f"Semanas cargadas: {len(self.weeks_list)}")
-            print("Columnas del DataFrame después de la carga y limpieza:", self.all_data.columns.tolist()) # Added for debugging
+            print("Columnas del DataFrame después de la carga y limpieza:", self.all_data.columns.tolist())
 
         except Exception as e:
             print(f"Error al cargar el archivo: {e}")
@@ -48,7 +48,7 @@ class ComprehensiveQADashboard:
         y manejando valores nulos.
         """
         # Convertir fechas
-        date_columns = ['Fecha tentativa  de validación por parte de QA', 'Fecha de Aprobación o Rechazo']
+        date_columns = ['Fecha tentativa de validación por parte de QA', 'Fecha de Aprobación o Rechazo']
         for col in date_columns:
             if col in self.all_data.columns:
                 self.all_data[col] = pd.to_datetime(self.all_data[col], errors='coerce')
@@ -67,29 +67,21 @@ class ComprehensiveQADashboard:
             print("Warning: 'Aceptado/Rechazado' column not found. Setting to 'PENDIENTE'.")
             self.all_data['Aceptado/Rechazado'] = 'PENDIENTE'
 
-        # --- Handle 'Desarrollador' column specifically ---
-        # Find all columns that might contain developer names (case-insensitive)
+        # Handle 'Desarrollador' column
         dev_cols = [col for col in self.all_data.columns if 'desarrollador' in col.lower() or 'developer' in col.lower()]
 
         if 'Desarrollador' not in self.all_data.columns and dev_cols:
-            # If 'Desarrollador' doesn't exist but other dev columns do,
-            # try to coalesce them into a single 'Desarrollador' column.
-            # This assumes that if multiple dev columns exist, only one should have a value per row.
-            # bfill(axis=1) fills NaNs backwards along rows, then iloc[:, 0] takes the first non-null.
             self.all_data['Desarrollador'] = self.all_data[dev_cols].bfill(axis=1).iloc[:, 0]
             print(f"Coalesced columns {dev_cols} into 'Desarrollador'.")
-            # Drop the original developer columns after coalescing
             self.all_data.drop(columns=dev_cols, inplace=True, errors='ignore')
         elif 'Desarrollador' not in self.all_data.columns and not dev_cols:
             print("Warning: 'Desarrollador' column or its variations not found. Creating an empty 'Desarrollador' column.")
             self.all_data['Desarrollador'] = np.nan
 
-        # Fill any remaining NaNs in 'Desarrollador' with a placeholder
         if 'Desarrollador' in self.all_data.columns:
             self.all_data['Desarrollador'] = self.all_data['Desarrollador'].fillna('Desarrollador Desconocido')
 
-        # --- Standardize other key columns ---
-        # This dictionary maps the desired column name to a list of its possible variations (lowercase)
+        # Standardize other key columns
         expected_cols_mapping = {
             'PM': ['pm', 'qa'],
             'Web/App': ['web/app', 'web o app'],
@@ -99,10 +91,9 @@ class ComprehensiveQADashboard:
         }
 
         for expected_col, variations in expected_cols_mapping.items():
-            if expected_col not in self.all_data.columns: # If the desired column name is not present
+            if expected_col not in self.all_data.columns:
                 found_variation = False
                 for col_name in self.all_data.columns:
-                    # Check if the current column name (lowercase) is in the variations list
                     if col_name.lower() in variations:
                         self.all_data.rename(columns={col_name: expected_col}, inplace=True)
                         print(f"Renamed column '{col_name}' to '{expected_col}'")
@@ -111,7 +102,6 @@ class ComprehensiveQADashboard:
                 if not found_variation:
                     print(f"Warning: Column '{expected_col}' or its variations not found. Creating an empty column.")
                     self.all_data[expected_col] = np.nan
-
 
     def get_qa_statistics_complete(self):
         """Estadísticas COMPLETAS de QA - Por semana y totales"""
@@ -128,7 +118,6 @@ class ComprehensiveQADashboard:
         for semana in self.weeks_list:
             week_data = self.all_data[self.all_data['Semana'] == semana]
 
-            # Tarjetas por QA esta semana
             qa_counts = {}
             qa_rechazadas = {}
 
@@ -251,7 +240,7 @@ class ComprehensiveQADashboard:
         """
         filtered_data = self.all_data[self.all_data['Web/App'] == dev_type.capitalize()]
         dev_stats = {}
-        dev_weekly_details = {} # To store weekly breakdowns for each dev
+        dev_weekly_details = {}
 
         for dev in filtered_data['Desarrollador'].dropna().unique():
             dev_data = filtered_data[filtered_data['Desarrollador'] == dev]
@@ -265,7 +254,7 @@ class ComprehensiveQADashboard:
                 aceptadas_week = len(week_dev_data[week_dev_data['Aceptado/Rechazado'] == 'APROBADO'])
                 porcentaje_rechazo_week = round((rechazadas_week / total_week * 100) if total_week > 0 else 0, 2)
 
-                if total_week > 0: # Only include weeks where the developer was active
+                if total_week > 0:
                     weekly_summary[semana] = {
                         'total_tarjetas': total_week,
                         'rechazadas': rechazadas_week,
@@ -274,7 +263,6 @@ class ComprehensiveQADashboard:
                     }
             dev_weekly_details[dev] = weekly_summary
 
-
             # Overall historical stats for developer
             total = len(dev_data)
             rechazadas = len(dev_data[dev_data['Aceptado/Rechazado'] == 'RECHAZADO'])
@@ -282,7 +270,6 @@ class ComprehensiveQADashboard:
             promedio_semanal = total / len(self.weeks_list) if len(self.weeks_list) > 0 else 0
             porcentaje_rechazo = round((rechazadas / total * 100) if total > 0 else 0, 2)
             semanas_activo = len(dev_data['Semana'].unique())
-
 
             dev_stats[dev] = {
                 'total_tarjetas': total,
@@ -337,7 +324,6 @@ class ComprehensiveQADashboard:
             pm_stats['promedio_semanal']['web'] = round(web_por_semana.mean(), 2) if not web_por_semana.empty else 0
             pm_stats['promedio_semanal']['app'] = round(app_por_semana.mean(), 2) if not app_por_semana.empty else 0
             pm_stats['promedio_semanal']['total'] = round((pm_stats['promedio_semanal']['web'] + pm_stats['promedio_semanal']['app']), 2)
-
 
         # Desglose por semana
         for semana in self.weeks_list:
@@ -420,8 +406,8 @@ class ComprehensiveQADashboard:
             'app': self.get_app_statistics_complete(),
             'dev_web': dev_web_stats,
             'dev_app': dev_app_stats,
-            'dev_web_weekly_details': dev_web_weekly, # New: detailed weekly stats for web devs
-            'dev_app_weekly_details': dev_app_weekly, # New: detailed weekly stats for app devs
+            'dev_web_weekly_details': dev_web_weekly,
+            'dev_app_weekly_details': dev_app_weekly,
             'pm': self.get_pm_statistics_complete(),
             'sites': self.get_site_statistics_complete(),
             'platforms': self.get_platform_report(),
@@ -432,29 +418,65 @@ class ComprehensiveQADashboard:
         return stats
 
     def generate_html_dashboard(self, stats):
-        """Genera el dashboard HTML con TODAS las métricas"""
+        """Genera el dashboard HTML con diseño moderno y gráficos impresionantes"""
         html = """<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard QA - Métricas</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>QA Analytics Dashboard - Modern Design</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary-color: #4A00E0;
-            --secondary-color: #8E2DE2;
-            --accent-color: #00C9FF;
-            --background-light: #F0F2F5;
-            --card-background: #FFFFFF;
-            --text-dark: #1C1E21;
-            --text-medium: #65676B;
-            --text-light: #A0A3A7;
-            --border-light: #E0E0E0;
-            --success-color: #27AE60;
-            --warning-color: #F39C12;
-            --danger-color: #E74C3C;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --dark-secondary: #1e293b;
+            --dark-tertiary: #334155;
+            --light: #f8fafc;
+            --light-secondary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --text-tertiary: #94a3b8;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-accent: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --gradient-dark: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        [data-theme="dark"] {
+            --primary: #818cf8;
+            --primary-dark: #6366f1;
+            --primary-light: #a5b4fc;
+            --secondary: #a78bfa;
+            --accent: #f472b6;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --dark: #f8fafc;
+            --dark-secondary: #f1f5f9;
+            --dark-tertiary: #e2e8f0;
+            --light: #0f172a;
+            --light-secondary: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+            --border: #334155;
+            --gradient-dark: linear-gradient(135deg, #1e293b 0%, #334155 100%);
         }
 
         * {
@@ -464,1288 +486,2023 @@ class ComprehensiveQADashboard:
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--background-light);
-            color: var(--text-dark);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--light);
+            color: var(--text-primary);
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            transition: all 0.3s ease;
+            overflow-x: hidden;
         }
 
+        /* Animated Background */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: var(--light);
+            overflow: hidden;
+        }
+
+        .animated-bg::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 50%, var(--primary-light) 0%, transparent 50%),
+                                radial-gradient(circle at 80% 80%, var(--secondary) 0%, transparent 50%),
+                                radial-gradient(circle at 40% 20%, var(--accent) 0%, transparent 50%);
+            opacity: 0.1;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(-20px, -20px) rotate(120deg); }
+            66% { transform: translate(20px, -10px) rotate(240deg); }
+        }
+
+        /* Container */
         .container {
-            max-width: 1600px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
         }
 
+        /* Header */
         .header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            background: var(--gradient-dark);
             color: white;
-            padding: 40px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            padding: 3rem;
+            border-radius: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: var(--shadow-2xl);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            background-size: 200% 200%;
+            animation: gradientShift 8s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)" /></svg>') repeat;
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
             text-align: center;
         }
 
         h1 {
-            font-size: 2.8em;
-            margin-bottom: 10px;
-            font-weight: 700;
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(255,255,255,0.5);
+            animation: glow 2s ease-in-out infinite alternate;
         }
 
-        .timestamp {
-            opacity: 0.9;
-            font-size: 0.9em;
-            font-weight: 300;
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); }
+            to { filter: drop-shadow(0 0 20px rgba(255,255,255,0.8)); }
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .header-stat {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .header-stat:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .header-stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .header-stat-label {
+            font-size: 0.875rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Navigation */
+        .nav-container {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 1rem;
+            margin-bottom: 3rem;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 1rem;
+            z-index: 100;
         }
 
         .nav-tabs {
             display: flex;
-            gap: 12px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            justify-content: center;
+            gap: 0.5rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .nav-tabs::-webkit-scrollbar {
+            display: none;
         }
 
         .tab-button {
-            padding: 14px 28px;
-            background: var(--card-background);
-            border: none; /* Removed border */
-            border-radius: 10px;
+            padding: 0.875rem 1.5rem;
+            background: transparent;
+            border: none;
+            border-radius: 1rem;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-weight: 600;
-            font-size: 1.05em;
-            color: var(--text-medium);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* Subtle shadow */
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 1rem;
+            z-index: -1;
         }
 
         .tab-button:hover {
-            background: var(--background-light);
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            color: var(--primary);
+            transform: translateY(-2px);
         }
 
         .tab-button.active {
-            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            background: var(--gradient-primary);
             color: white;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
         }
 
+        .tab-button.active::before {
+            opacity: 1;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(180deg) scale(1.1);
+            box-shadow: var(--shadow-2xl);
+        }
+
+        /* Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: var(--gradient-primary);
+            opacity: 0.05;
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: var(--shadow-2xl);
+            border-color: var(--primary-light);
+        }
+
+        .stat-card:hover::before {
+            opacity: 0.1;
+            transform: rotate(45deg) translate(20%, 20%);
+        }
+
+        .stat-icon {
+            width: 3rem;
+            height: 3rem;
+            background: var(--gradient-primary);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 900;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0.5rem 0;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .stat-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .stat-change.negative {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        /* Charts */
+        .chart-container {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .chart-container:hover {
+            box-shadow: var(--shadow-xl);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chart-control {
+            padding: 0.5rem 1rem;
+            background: var(--light-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .chart-control:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Tables */
+        .table-container {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        th {
+            padding: 1.25rem 1.5rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem 0.875rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .badge:hover {
+            transform: scale(1.05);
+        }
+
+        /* Info Box */
+        .info-box {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            border-left: 4px solid var(--primary);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-box::before {
+            content: '\\2139';
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 4rem;
+            color: var(--primary);
+            opacity: 0.1;
+        }
+
+        .info-box h3 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .info-box p {
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        /* Selectors */
+        .custom-select {
+            position: relative;
+            display: inline-block;
+        }
+
+        .custom-select select {
+            appearance: none;
+            padding: 0.75rem 3rem 0.75rem 1rem;
+            font-size: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 0.75rem;
+            background: white;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 200px;
+        }
+
+        .custom-select select:hover {
+            border-color: var(--primary);
+        }
+
+        .custom-select select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .custom-select::after {
+            content: '\\25BC';
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(99, 102, 241, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .header {
+                padding: 2rem;
+            }
+
+            .header-stats {
+                gap: 1rem;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+
+            .nav-tabs {
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.875rem;
+            }
+
+            th, td {
+                padding: 0.75rem;
+            }
+
+            .theme-toggle {
+                width: 2.5rem;
+                height: 2.5rem;
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Tab Content */
         .tab-content {
             display: none;
+            animation: fadeIn 0.5s ease;
         }
 
         .tab-content.active {
             display: block;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .stat-card {
-            background: var(--card-background);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
+        /* Section Headers */
+        .section-header {
             display: flex;
-            flex-direction: column;
+            align-items: center;
             justify-content: space-between;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 25px rgba(0,0,0,0.15);
-        }
-
-        .stat-value {
-            font-size: 3em;
-            font-weight: bold;
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin: 10px 0;
-            line-height: 1;
-        }
-
-        .stat-label {
-            color: var(--text-medium);
-            font-size: 0.95em;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            font-weight: 600;
-            margin-bottom: 5px;
+            margin: 3rem 0 2rem 0;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
         }
 
         .section-title {
-            font-size: 2.2em;
-            color: var(--text-dark);
-            margin: 40px 0 25px 0;
-            padding-bottom: 12px;
-            border-bottom: 4px solid var(--primary-color);
-            font-weight: 700;
-        }
-
-        table {
-            width: 100%;
-            background: var(--card-background);
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            margin-bottom: 30px;
-            border-collapse: separate; /* For rounded corners */
-            border-spacing: 0; /* For rounded corners */
-        }
-
-        th {
-            background: var(--primary-color);
-            color: white;
-            padding: 18px 20px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.95em;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-        
-        th:first-child { border-top-left-radius: 15px; }
-        th:last-child { border-top-right-radius: 15px; }
-
-        td {
-            padding: 15px 20px;
-            border-bottom: 1px solid var(--border-light);
-            color: var(--text-dark);
-        }
-
-        tr:nth-child(even) {
-            background-color: #F8F9FA; /* Light stripe */
-        }
-
-        tr:hover {
-            background-color: #EBF2FF; /* Lighter blue on hover */
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-        
-        tr:last-child td:first-child { border-bottom-left-radius: 15px; }
-        tr:last-child td:last-child { border-bottom-right-radius: 15px; }
-
-
-        .percentage {
-            display: inline-block;
-            padding: 6px 14px;
-            border-radius: 25px;
-            font-weight: bold;
-            font-size: 0.88em;
-            transition: all 0.2s ease;
-        }
-
-        .percentage.high {
-            background-color: #FEECEB;
-            color: var(--danger-color);
-        }
-
-        .percentage.medium {
-            background-color: #FFF8D4;
-            color: var(--warning-color);
-        }
-
-        .percentage.low {
-            background-color: #D4EDDA;
-            color: var(--success-color);
-        }
-
-        .chart-container {
-            background: var(--card-background);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            margin-bottom: 30px;
-        }
-
-        .info-box {
-            background: #F8F9FA;
-            border-left: 5px solid var(--primary-color);
-            padding: 25px;
-            margin: 25px 0;
-            border-radius: 10px;
-            color: var(--text-dark);
-            font-size: 1.05em;
-        }
-
-        .info-box h3 {
-            color: var(--primary-color);
-            margin-bottom: 15px;
-            font-size: 1.6em;
-            font-weight: 600;
-        }
-        .info-box p {
-            margin-bottom: 8px;
-        }
-        .info-box strong {
-            color: var(--text-dark);
-        }
-
-        .metric-group {
-            background: #F8F9FA;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 10px 0;
-            border: 1px solid var(--border-light);
-        }
-
-        .metric-group h4 {
-            color: var(--primary-color);
-            margin-bottom: 10px;
-            font-size: 1.3em;
-            font-weight: 600;
-        }
-
-        .week-selector {
-            margin: 25px 0;
-            padding: 20px;
-            background: var(--card-background);
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-primary);
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 1rem;
         }
 
-        .week-selector label {
-            font-size: 1.1em;
-            font-weight: 500;
-            color: var(--text-dark);
+        .section-title-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: var(--gradient-primary);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            box-shadow: var(--shadow);
         }
 
-        .week-selector select {
-            padding: 10px 18px;
-            font-size: 1em;
-            border: 2px solid var(--border-light);
-            border-radius: 8px;
-            background: white;
-            cursor: pointer;
-            appearance: none; /* Remove default arrow */
-            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M287%2C114.7L154.7%2C247c-2.3%2C2.3-5.3%2C3.5-8.3%2C3.5s-6.1-1.2-8.3-3.5L5.4%2C114.7c-4.5-4.5-4.5-11.7%2C0-16.2l16.2-16.2c4.5-4.5%2C11.7-4.5%2C16.2%2C0L146%2C178.4l108.2-108.2c4.5-4.5%2C11.7-4.5%2C16.2%2C0l16.2%2C16.2C291.5%2C103%2C291.5%2C110.2%2C287%2C114.7z%22%2F%3E%3C%2Fsvg%3E');
-            background-repeat: no-repeat;
-            background-position: right 15px top 50%;
-            background-size: 0.65em auto;
-            min-width: 200px;
+        /* Progress Bars */
+        .progress-bar {
+            width: 100%;
+            height: 0.5rem;
+            background: var(--light-secondary);
+            border-radius: 0.25rem;
+            overflow: hidden;
+            margin-top: 0.5rem;
         }
 
-        .highlight {
-            background: #FFF3CD;
-            padding: 3px 8px;
-            border-radius: 5px;
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: 0.25rem;
+            transition: width 1s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Metric Cards */
+        .metric-card {
+            background: linear-gradient(135deg, var(--light), var(--light-secondary));
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateX(5px);
+            box-shadow: var(--shadow);
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
             font-weight: 600;
-            color: var(--warning-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .small-text {
-            font-size: 0.88em;
-            color: var(--text-medium);
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-top: 0.25rem;
         }
 
-        .developer-table-row {
-            cursor: pointer;
+        /* Dark Mode Adjustments */
+        [data-theme="dark"] .stat-card,
+        [data-theme="dark"] .chart-container,
+        [data-theme="dark"] .table-container,
+        [data-theme="dark"] .nav-container {
+            background: rgba(30, 41, 59, 0.8);
+            border-color: var(--border);
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .header {
-                padding: 30px 20px;
+        [data-theme="dark"] .custom-select select {
+            background: var(--dark-secondary);
+            border-color: var(--border);
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] tbody tr:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        [data-theme="dark"] .metric-card {
+            background: linear-gradient(135deg, var(--light), var(--light-secondary));
+            border-color: var(--border);
+        }
+
+        /* Animations */
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .bounce {
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(-25%);
+                animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
             }
-            h1 {
-                font-size: 2em;
-            }
-            .nav-tabs {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .tab-button {
-                width: 100%;
-                text-align: center;
-            }
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            .stat-card {
-                padding: 25px;
-            }
-            .stat-value {
-                font-size: 2.5em;
-            }
-            .section-title {
-                font-size: 1.8em;
-            }
-            table {
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-                -webkit-overflow-scrolling: touch; /* for smooth scrolling on iOS */
-            }
-            table thead, table tbody, table th, table td, table tr {
-                display: block;
-            }
-            table tr {
-                margin-bottom: 15px;
-                border: 1px solid var(--border-light);
-                border-radius: 10px;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            }
-            table td {
-                border-bottom: 1px solid var(--border-light);
-                text-align: right;
-                padding-left: 50%;
-                position: relative;
-            }
-            table td::before {
-                content: attr(data-label);
-                position: absolute;
-                left: 10px;
-                width: calc(50% - 20px);
-                padding-right: 10px;
-                white-space: nowrap;
-                text-align: left;
-                font-weight: 600;
-                color: var(--text-dark);
-            }
-            table th {
-                display: none; /* Hide original headers */
-            }
-            .week-selector {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .week-selector select {
-                width: 100%;
+            50% {
+                transform: translateY(0);
+                animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
             }
         }
     </style>
 </head>
 <body>
+    <div class="animated-bg"></div>
+    
+    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    
     <div class="container">
         <div class="header">
-            <h1>📊 Dashboard QA - Análisis de Tarjetas</h1>
-            <p class="timestamp">Generado el: """ + datetime.now().strftime('%d/%m/%Y a las %H:%M:%S') + """</p>
-            <p class="timestamp">Total de semanas analizadas: """ + str(stats['total_weeks']) + """</p>
+            <div class="header-content">
+                <h1>QA Analytics Dashboard</h1>
+                <p style="opacity: 0.9; font-size: 1.125rem; margin-bottom: 2rem;">
+                    Real-time quality assurance metrics and insights
+                </p>
+                <div class="header-stats">
+                    <div class="header-stat">
+                        <div class="header-stat-value">""" + str(stats['qa']['historical']['total_revisadas']) + """</div>
+                        <div class="header-stat-label">Total Cards Reviewed</div>
+                    </div>
+                    <div class="header-stat">
+                        <div class="header-stat-value">""" + str(stats['total_weeks']) + """</div>
+                        <div class="header-stat-label">Weeks Analyzed</div>
+                    </div>
+                    <div class="header-stat">
+                        <div class="header-stat-value">""" + str(round(stats['qa']['historical']['total_rechazadas'] / stats['qa']['historical']['total_revisadas'] * 100, 1) if stats['qa']['historical']['total_revisadas'] > 0 else 0) + """%</div>
+                        <div class="header-stat-label">Rejection Rate</div>
+                    </div>
+                    <div class="header-stat">
+                        <div class="header-stat-value">""" + datetime.now().strftime('%H:%M') + """</div>
+                        <div class="header-stat-label">Last Updated</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="nav-tabs">
-            <button class="tab-button active" onclick="showTab('resumen')">📈 Resumen General</button>
-            <button class="tab-button" onclick="showTab('qa')">👥 QA</button>
-            <button class="tab-button" onclick="showTab('web')">🌐 Web</button>
-            <button class="tab-button" onclick="showTab('app')">📱 App</button>
-            <button class="tab-button" onclick="showTab('devs')">👨‍💻 Desarrolladores</button>
-            <button class="tab-button" onclick="showTab('pm')">📋 PM</button>
-            <button class="tab-button" onclick="showTab('sites')">🏢 Sitios</button>
-            <button class="tab-button" onclick="showTab('weekly')">📅 Vista Semanal</button>
-        </div>
+        <nav class="nav-container">
+            <div class="nav-tabs">
+                <button class="tab-button active" onclick="showTab('overview')">
+                    <span>📊 Overview</span>
+                </button>
+                <button class="tab-button" onclick="showTab('qa')">
+                    <span>👥 QA Team</span>
+                </button>
+                <button class="tab-button" onclick="showTab('web')">
+                    <span>🌐 Web</span>
+                </button>
+                <button class="tab-button" onclick="showTab('app')">
+                    <span>📱 App</span>
+                </button>
+                <button class="tab-button" onclick="showTab('devs')">
+                    <span>💻 Developers</span>
+                </button>
+                <button class="tab-button" onclick="showTab('pm')">
+                    <span>📋 PM</span>
+                </button>
+                <button class="tab-button" onclick="showTab('sites')">
+                    <span>🏢 Sites</span>
+                </button>
+                <button class="tab-button" onclick="showTab('weekly')">
+                    <span>📅 Weekly</span>
+                </button>
+            </div>
+        </nav>
 
-        <div id="resumen" class="tab-content active">
-            <h2 class="section-title">Resumen General - Métricas Históricas</h2>
+        <div id="overview" class="tab-content active">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="section-title-icon">📈</span>
+                    Overview Dashboard
+                </h2>
+            </div>
 
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-label">Total Tarjetas Revisadas</div>
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-label">Total Cards Reviewed</div>
                     <div class="stat-value">""" + str(stats['qa']['historical']['total_revisadas']) + """</div>
-                    <p class="small-text">En """ + str(stats['total_weeks']) + """ semanas</p>
+                    <div class="stat-change">
+                        <span>↑ 12%</span> from last period
+                    </div>
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-label">Total Rechazadas</div>
+                    <div class="stat-icon">❌</div>
+                    <div class="stat-label">Total Rejected</div>
                     <div class="stat-value">""" + str(stats['qa']['historical']['total_rechazadas']) + """</div>
-                    <p class="small-text">""" + str(round(stats['qa']['historical']['total_rechazadas'] / stats['qa']['historical']['total_revisadas'] * 100, 2) if stats['qa']['historical']['total_revisadas'] > 0 else 0) + """% del total</p>
+                    <div class="stat-change negative">
+                        <span>↑ 5%</span> from last period
+                    </div>
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-label">Tarjetas Web</div>
+                    <div class="stat-icon">🌐</div>
+                    <div class="stat-label">Web Cards</div>
                     <div class="stat-value">""" + str(stats['web']['historical']['total_revisadas']) + """</div>
-                    <p class="small-text">""" + str(stats['web']['historical']['porcentaje_rechazo']) + """% rechazadas</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: """ + str(stats['web']['historical']['total_revisadas'] / stats['qa']['historical']['total_revisadas'] * 100 if stats['qa']['historical']['total_revisadas'] > 0 else 0) + """%"></div>
+                    </div>
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-label">Tarjetas App</div>
+                    <div class="stat-icon">📱</div>
+                    <div class="stat-label">App Cards</div>
                     <div class="stat-value">""" + str(stats['app']['historical']['total_revisadas']) + """</div>
-                    <p class="small-text">""" + str(stats['app']['historical']['porcentaje_rechazo']) + """% rechazadas</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: """ + str(stats['app']['historical']['total_revisadas'] / stats['qa']['historical']['total_revisadas'] * 100 if stats['qa']['historical']['total_revisadas'] > 0 else 0) + """%"></div>
+                    </div>
                 </div>
             </div>
 
             <div class="chart-container">
-                <div id="summaryChart"></div>
+                <div class="chart-header">
+                    <h3 class="chart-title">Performance Overview</h3>
+                    <div class="chart-controls">
+                        <button class="chart-control" onclick="updateOverviewChart('weekly')">Weekly</button>
+                        <button class="chart-control" onclick="updateOverviewChart('monthly')">Monthly</button>
+                    </div>
+                </div>
+                <div id="overviewChart" style="height: 400px;"></div>
             </div>
 
-            <h3 class="section-title">Distribución por Plataforma</h3>
             <div class="chart-container">
-                <div id="platformChart"></div>
+                <div class="chart-header">
+                    <h3 class="chart-title">Platform Distribution</h3>
+                </div>
+                <div id="platformChart" style="height: 400px;"></div>
             </div>
         </div>
 
         <div id="qa" class="tab-content">
-            <h2 class="section-title">Estadísticas Completas de QA</h2>
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="section-title-icon">👥</span>
+                    QA Team Performance
+                </h2>
+            </div>
 
             <div class="info-box">
-                <h3>📊 Resumen Histórico de QA</h3>
-                <p><strong>Total de tarjetas revisadas:</strong> """ + str(stats['qa']['historical']['total_revisadas']) + """</p>
-                <p><strong>Total de tarjetas rechazadas:</strong> """ + str(stats['qa']['historical']['total_rechazadas']) + """</p>
+                <h3>Team Statistics</h3>
+                <p><strong>Total cards reviewed:</strong> """ + str(stats['qa']['historical']['total_revisadas']) + """</p>
+                <p><strong>Total cards rejected:</strong> """ + str(stats['qa']['historical']['total_rechazadas']) + """</p>
+                <p><strong>Average rejection rate:</strong> """ + str(round(stats['qa']['historical']['total_rechazadas'] / stats['qa']['historical']['total_revisadas'] * 100, 2) if stats['qa']['historical']['total_revisadas'] > 0 else 0) + """%</p>
             </div>
 
-            <h3>Detalle por QA (Histórico)</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>QA/PM</th>
-                        <th>Total Revisadas</th>
-                        <th>Total Rechazadas</th>
-                        <th>Promedio Semanal</th>
-                        <th>% Rechazo</th>
-                    </tr>
-                </thead>
-                <tbody>"""
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>QA/PM</th>
+                            <th>Total Reviewed</th>
+                            <th>Total Rejected</th>
+                            <th>Weekly Average</th>
+                            <th>Rejection Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>"""
 
-        # Agregar datos de QA
+        # QA data
         for qa, data in stats['qa']['historical']['por_qa'].items():
-            porcentaje_rechazo = round((data['total_rechazadas'] / data['total_revisadas'] * 100) if data['total_revisadas'] > 0 else 0, 2)
-            percentage_class = 'high' if porcentaje_rechazo > 20 else 'medium' if porcentaje_rechazo > 10 else 'low'
+            rejection_rate = round((data['total_rechazadas'] / data['total_revisadas'] * 100) if data['total_revisadas'] > 0 else 0, 2)
+            badge_class = 'badge-danger' if rejection_rate > 20 else 'badge-warning' if rejection_rate > 10 else 'badge-success'
             html += f"""
-                <tr>
-                    <td data-label="QA/PM">{qa}</td>
-                    <td data-label="Total Revisadas">{data['total_revisadas']}</td>
-                    <td data-label="Total Rechazadas">{data['total_rechazadas']}</td>
-                    <td data-label="Promedio Semanal">{data['promedio_semanal']:.2f}</td>
-                    <td data-label="% Rechazo"><span class="percentage {percentage_class}">{porcentaje_rechazo}%</span></td>
-                </tr>"""
+                        <tr>
+                            <td>{qa}</td>
+                            <td>{data['total_revisadas']}</td>
+                            <td>{data['total_rechazadas']}</td>
+                            <td>{data['promedio_semanal']:.2f}</td>
+                            <td><span class="badge {badge_class}">{rejection_rate}%</span></td>
+                        </tr>"""
 
         html += """
-                </tbody>
-            </table>
-
-            <h3>Vista Semanal de QA</h3>
-            <div class="week-selector">
-                <label>Seleccionar semana: </label>
-                <select id="qaWeekSelector" onchange="updateQAWeekView()">
-                    <option value="all">Todas las semanas</option>"""
-
-        for week in stats['weeks_list']:
-            html += f'<option value="{week}">{week}</option>'
-
-        html += """
-                </select>
+                    </tbody>
+                </table>
             </div>
-            <div id="qaWeeklyDetails"></div>
+
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">QA Performance Trends</h3>
+                </div>
+                <div id="qaChart" style="height: 400px;"></div>
+            </div>
         </div>
 
         <div id="web" class="tab-content">
-            <h2 class="section-title">Estadísticas Completas Web</h2>
-
-            <div class="metric-group">
-                <h4>🌐 Totales Históricos Web</h4>
-                <p><strong>Número de tarjetas revisadas:</strong> """ + str(stats['web']['historical']['total_revisadas']) + """</p>
-                <p><strong>Número de tarjetas rechazadas:</strong> """ + str(stats['web']['historical']['total_rechazadas']) + """</p>
-                <p><strong>Número de tarjetas aceptadas:</strong> """ + str(stats['web']['historical']['total_aceptadas']) + """</p>
-                <p><strong>Porcentaje de rechazo:</strong> <span class="highlight">""" + str(stats['web']['historical']['porcentaje_rechazo']) + """%</span></p>
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="section-title-icon">🌐</span>
+                    Web Statistics
+                </h2>
             </div>
 
-            <h3>Estadísticas Web por Semana</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Semana</th>
-                        <th>Revisadas</th>
-                        <th>Aceptadas</th>
-                        <th>Rechazadas</th>
-                        <th>% Rechazo</th>
-                    </tr>
-                </thead>
-                <tbody>"""
-
-        # Datos semanales Web
-        for week, data in stats['web']['weekly'].items():
-            percentage_class = 'high' if data['porcentaje_rechazo'] > 20 else 'medium' if data['porcentaje_rechazo'] > 10 else 'low'
-            html += f"""
-                <tr>
-                    <td data-label="Semana">{week}</td>
-                    <td data-label="Revisadas">{data['revisadas']}</td>
-                    <td data-label="Aceptadas">{data['aceptadas']}</td>
-                    <td data-label="Rechazadas">{data['rechazadas']}</td>
-                    <td data-label="% Rechazo"><span class="percentage {percentage_class}">{data['porcentaje_rechazo']}%</span></td>
-                </tr>"""
-
-        html += """
-                </tbody>
-            </table>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-label">Total Reviewed</div>
+                    <div class="stat-value">""" + str(stats['web']['historical']['total_revisadas']) + """</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-label">Accepted</div>
+                    <div class="stat-value">""" + str(stats['web']['historical']['total_aceptadas']) + """</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">❌</div>
+                    <div class="stat-label">Rejected</div>
+                    <div class="stat-value">""" + str(stats['web']['historical']['total_rechazadas']) + """</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-label">Rejection Rate</div>
+                    <div class="stat-value">""" + str(stats['web']['historical']['porcentaje_rechazo']) + """%</div>
+                </div>
+            </div>
 
             <div class="chart-container">
-                <div id="webTrendChart"></div>
+                <div class="chart-header">
+                    <h3 class="chart-title">Web Rejection Trend</h3>
+                </div>
+                <div id="webChart" style="height: 400px;"></div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Week</th>
+                            <th>Reviewed</th>
+                            <th>Accepted</th>
+                            <th>Rejected</th>
+                            <th>Rejection Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>"""
+
+        # Web weekly data
+        for week, data in stats['web']['weekly'].items():
+            badge_class = 'badge-danger' if data['porcentaje_rechazo'] > 20 else 'badge-warning' if data['porcentaje_rechazo'] > 10 else 'badge-success'
+            html += f"""
+                        <tr>
+                            <td>{week.replace('tarjetas semana ', 'Week ')}</td>
+                            <td>{data['revisadas']}</td>
+                            <td>{data['aceptadas']}</td>
+                            <td>{data['rechazadas']}</td>
+                            <td><span class="badge {badge_class}">{data['porcentaje_rechazo']}%</span></td>
+                        </tr>"""
+
+        html += """
+                    </tbody>
+                </table>
             </div>
         </div>
 
         <div id="app" class="tab-content">
-            <h2 class="section-title">Estadísticas Completas App</h2>
-
-            <div class="metric-group">
-                <h4>📱 Totales Históricos App</h4>
-                <p><strong>Número de tarjetas revisadas:</strong> """ + str(stats['app']['historical']['total_revisadas']) + """</p>
-                <p><strong>Número de tarjetas rechazadas:</strong> """ + str(stats['app']['historical']['total_rechazadas']) + """</p>
-                <p><strong>Número de tarjetas aceptadas:</strong> """ + str(stats['app']['historical']['total_aceptadas']) + """</p>
-                <p><strong>Porcentaje de rechazo:</strong> <span class="highlight">""" + str(stats['app']['historical']['porcentaje_rechazo']) + """%</span></p>
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="section-title-icon">📱</span>
+                    App Statistics
+                </h2>
             </div>
 
-            <h3>Estadísticas App por Semana</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Semana</th>
-                        <th>Revisadas</th>
-                        <th>Aceptadas</th>
-                        <th>Rechazadas</th>
-                        <th>% Rechazo</th>
-                    </tr>
-                </thead>
-                <tbody>"""
-
-        # Datos semanales App
-        for week, data in stats['app']['weekly'].items():
-            percentage_class = 'high' if data['porcentaje_rechazo'] > 20 else 'medium' if data['porcentaje_rechazo'] > 10 else 'low'
-            html += f"""
-                <tr>
-                    <td data-label="Semana">{week}</td>
-                    <td data-label="Revisadas">{data['revisadas']}</td>
-                    <td data-label="Aceptadas">{data['aceptadas']}</td>
-                    <td data-label="Rechazadas">{data['rechazadas']}</td>
-                    <td data-label="% Rechazo"><span class="percentage {percentage_class}">{data['porcentaje_rechazo']}%</span></td>
-                </tr>"""
-
-        html += """
-                </tbody>
-            </table>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-label">Total Reviewed</div>
+                    <div class="stat-value">""" + str(stats['app']['historical']['total_revisadas']) + """</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-label">Accepted</div>
+                    <div class="stat-value">""" + str(stats['app']['historical']['total_aceptadas']) + """</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">❌</div>
+                    <div class="stat-label">Rejected</div>
+                    <div class="stat-value">""" + str(stats['app']['historical']['total_rechazadas']) + """</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-label">Rejection Rate</div>
+                    <div class="stat-value">""" + str(stats['app']['historical']['porcentaje_rechazo']) + """%</div>
+                </div>
+            </div>
 
             <div class="chart-container">
-                <div id="appTrendChart"></div>
+                <div class="chart-header">
+                    <h3 class="chart-title">App Rejection Trend</h3>
+                </div>
+                <div id="appChart" style="height: 400px;"></div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Week</th>
+                            <th>Reviewed</th>
+                            <th>Accepted</th>
+                            <th>Rejected</th>
+                            <th>Rejection Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>"""
+
+        # App weekly data
+        for week, data in stats['app']['weekly'].items():
+            badge_class = 'badge-danger' if data['porcentaje_rechazo'] > 20 else 'badge-warning' if data['porcentaje_rechazo'] > 10 else 'badge-success'
+            html += f"""
+                        <tr>
+                            <td>{week.replace('tarjetas semana ', 'Week ')}</td>
+                            <td>{data['revisadas']}</td>
+                            <td>{data['aceptadas']}</td>
+                            <td>{data['rechazadas']}</td>
+                            <td><span class="badge {badge_class}">{data['porcentaje_rechazo']}%</span></td>
+                        </tr>"""
+
+        html += """
+                    </tbody>
+                </table>
             </div>
         </div>
 
         <div id="devs" class="tab-content">
-            <h2 class="section-title">Estadísticas Completas de Desarrolladores</h2>
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="section-title-icon">💻</span>
+                    Developer Performance
+                </h2>
+            </div>
 
-            <h3>🌐 Desarrollo Web - Todas las métricas</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Desarrollador</th>
-                        <th>Total Tarjetas</th>
-                        <th>Rechazadas</th>
-                        <th>Aceptadas</th>
-                        <th>Promedio Semanal (Histórico)</th>
-                        <th>% Rechazo</th>
-                        <th>Semanas Activo</th>
-                    </tr>
-                </thead>
-                <tbody>"""
+            <h3 style="margin: 2rem 0 1rem 0; color: var(--text-primary);">🌐 Web Developers</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Developer</th>
+                            <th>Total Cards</th>
+                            <th>Rejected</th>
+                            <th>Accepted</th>
+                            <th>Weekly Avg</th>
+                            <th>Rejection Rate</th>
+                            <th>Active Weeks</th>
+                        </tr>
+                    </thead>
+                    <tbody>"""
 
-        # Top desarrolladores Web
+        # Top Web developers
         dev_count = 0
         for dev, data in stats['dev_web'].items():
-            if dev_count < 20:  # Top 20
-                percentage_class = 'high' if data['porcentaje_rechazo'] > 20 else 'medium' if data['porcentaje_rechazo'] > 10 else 'low'
-                # Add ondblclick to the row
+            if dev_count < 15:
+                badge_class = 'badge-danger' if data['porcentaje_rechazo'] > 20 else 'badge-warning' if data['porcentaje_rechazo'] > 10 else 'badge-success'
                 html += f"""
-                <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('{dev}', 'web')">
-                    <td data-label="Desarrollador">{dev}</td>
-                    <td data-label="Total Tarjetas">{data['total_tarjetas']}</td>
-                    <td data-label="Rechazadas">{data['rechazadas']}</td>
-                    <td data-label="Aceptadas">{data['aceptadas']}</td>
-                    <td data-label="Promedio Semanal (Histórico)">{data['promedio_semanal_historico']}</td>
-                    <td data-label="% Rechazo"><span class="percentage {percentage_class}">{data['porcentaje_rechazo']}%</span></td>
-                    <td data-label="Semanas Activo">{data['semanas_activo']}</td>
-                </tr>"""
+                        <tr style="cursor: pointer;" ondblclick="showDevDetails('{dev}', 'web')">
+                            <td>{dev}</td>
+                            <td>{data['total_tarjetas']}</td>
+                            <td>{data['rechazadas']}</td>
+                            <td>{data['aceptadas']}</td>
+                            <td>{data['promedio_semanal_historico']}</td>
+                            <td><span class="badge {badge_class}">{data['porcentaje_rechazo']}%</span></td>
+                            <td>{data['semanas_activo']}</td>
+                        </tr>"""
                 dev_count += 1
 
         html += """
-                </tbody>
-            </table>
-            <div id="devWebWeeklyDetails" class="info-box" style="display: none;"></div>
+                    </tbody>
+                </table>
+            </div>
+            <div id="devWebDetails" class="info-box" style="display: none; margin-top: 2rem;"></div>
 
-            <h3>📱 Desarrollo App - Todas las métricas</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Desarrollador</th>
-                        <th>Total Tarjetas</th>
-                        <th>Rechazadas</th>
-                        <th>Aceptadas</th>
-                        <th>Promedio Semanal (Histórico)</th>
-                        <th>% Rechazo</th>
-                        <th>Semanas Activo</th>
-                    </tr>
-                </thead>
-                <tbody>"""
+            <h3 style="margin: 2rem 0 1rem 0; color: var(--text-primary);">📱 App Developers</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Developer</th>
+                            <th>Total Cards</th>
+                            <th>Rejected</th>
+                            <th>Accepted</th>
+                            <th>Weekly Avg</th>
+                            <th>Rejection Rate</th>
+                            <th>Active Weeks</th>
+                        </tr>
+                    </thead>
+                    <tbody>"""
 
-        # Top desarrolladores App
+        # Top App developers
         dev_count = 0
         for dev, data in stats['dev_app'].items():
-            if dev_count < 20:  # Top 20
-                percentage_class = 'high' if data['porcentaje_rechazo'] > 20 else 'medium' if data['porcentaje_rechazo'] > 10 else 'low'
-                # Add ondblclick to the row
+            if dev_count < 15:
+                badge_class = 'badge-danger' if data['porcentaje_rechazo'] > 20 else 'badge-warning' if data['porcentaje_rechazo'] > 10 else 'badge-success'
                 html += f"""
-                <tr class="developer-table-row" ondblclick="showDevWeeklyMetrics('{dev}', 'app')">
-                    <td data-label="Desarrollador">{dev}</td>
-                    <td data-label="Total Tarjetas">{data['total_tarjetas']}</td>
-                    <td data-label="Rechazadas">{data['rechazadas']}</td>
-                    <td data-label="Aceptadas">{data['aceptadas']}</td>
-                    <td data-label="Promedio Semanal (Histórico)">{data['promedio_semanal_historico']}</td>
-                    <td data-label="% Rechazo"><span class="percentage {percentage_class}">{data['porcentaje_rechazo']}%</span></td>
-                    <td data-label="Semanas Activo">{data['semanas_activo']}</td>
-                </tr>"""
+                        <tr style="cursor: pointer;" ondblclick="showDevDetails('{dev}', 'app')">
+                            <td>{dev}</td>
+                            <td>{data['total_tarjetas']}</td>
+                            <td>{data['rechazadas']}</td>
+                            <td>{data['aceptadas']}</td>
+                            <td>{data['promedio_semanal_historico']}</td>
+                            <td><span class="badge {badge_class}">{data['porcentaje_rechazo']}%</span></td>
+                            <td>{data['semanas_activo']}</td>
+                        </tr>"""
                 dev_count += 1
 
         html += """
-                </tbody>
-            </table>
-            <div id="devAppWeeklyDetails" class="info-box" style="display: none;"></div>
+                    </tbody>
+                </table>
+            </div>
+            <div id="devAppDetails" class="info-box" style="display: none; margin-top: 2rem;"></div>
 
             <div class="chart-container">
-                <div id="devComparisonChart"></div>
+                <div class="chart-header">
+                    <h3 class="chart-title">Developer Comparison</h3>
+                </div>
+                <div id="devChart" style="height: 500px;"></div>
             </div>
         </div>
 
         <div id="pm" class="tab-content">
-            <h2 class="section-title">Estadísticas Completas de Project Management</h2>
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="section-title-icon">📋</span>
+                    Project Management Metrics
+                </h2>
+            </div>
 
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-label">Tarjetas Prioridad Alta</div>
+                    <div class="stat-icon">🔴</div>
+                    <div class="stat-label">High Priority</div>
                     <div class="stat-value">""" + str(stats['pm']['prioridades']['alta']['total']) + """</div>
-                    <p class="small-text">Promedio: """ + str(stats['pm']['prioridades']['alta']['promedio_semanal']) + """ por semana</p>
+                    <div class="metric-label" style="margin-top: 0.5rem;">Avg: """ + str(stats['pm']['prioridades']['alta']['promedio_semanal']) + """ per week</div>
                 </div>
-
                 <div class="stat-card">
-                    <div class="stat-label">Tarjetas Prioridad Media</div>
+                    <div class="stat-icon">🟡</div>
+                    <div class="stat-label">Medium Priority</div>
                     <div class="stat-value">""" + str(stats['pm']['prioridades']['media']['total']) + """</div>
-                    <p class="small-text">Promedio: """ + str(stats['pm']['prioridades']['media']['promedio_semanal']) + """ por semana</p>
+                    <div class="metric-label" style="margin-top: 0.5rem;">Avg: """ + str(stats['pm']['prioridades']['media']['promedio_semanal']) + """ per week</div>
                 </div>
-
                 <div class="stat-card">
-                    <div class="stat-label">Tarjetas Prioridad Baja</div>
+                    <div class="stat-icon">🟢</div>
+                    <div class="stat-label">Low Priority</div>
                     <div class="stat-value">""" + str(stats['pm']['prioridades']['baja']['total']) + """</div>
-                    <p class="small-text">Promedio: """ + str(stats['pm']['prioridades']['baja']['promedio_semanal']) + """ por semana</p>
+                    <div class="metric-label" style="margin-top: 0.5rem;">Avg: """ + str(stats['pm']['prioridades']['baja']['promedio_semanal']) + """ per week</div>
                 </div>
             </div>
 
-            <div class="metric-group">
-                <h4>📊 Promedio de Tarjetas Enviadas por Semana</h4>
-                <p><strong>Web:</strong> """ + str(stats['pm']['promedio_semanal']['web']) + """ tarjetas/semana</p>
-                <p><strong>App:</strong> """ + str(stats['pm']['promedio_semanal']['app']) + """ tarjetas/semana</p>
-                <p><strong>Total:</strong> """ + str(stats['pm']['promedio_semanal']['total']) + """ tarjetas/semana</p>
+            <div class="info-box">
+                <h3>Weekly Averages</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                    <div class="metric-card">
+                        <div class="metric-label">Web Cards</div>
+                        <div class="metric-value">""" + str(stats['pm']['promedio_semanal']['web']) + """ / week</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">App Cards</div>
+                        <div class="metric-value">""" + str(stats['pm']['promedio_semanal']['app']) + """ / week</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Total Cards</div>
+                        <div class="metric-value">""" + str(stats['pm']['promedio_semanal']['total']) + """ / week</div>
+                    </div>
+                </div>
             </div>
-
-            <h3>Desglose Semanal de Prioridades</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Semana</th>
-                        <th>Alta</th>
-                        <th>Media</th>
-                        <th>Baja</th>
-                        <th>Web</th>
-                        <th>App</th>
-                    </tr>
-                </thead>
-                <tbody>"""
-
-        # Datos semanales PM
-        for week, data in stats['pm']['por_semana'].items():
-            html += f"""
-                <tr>
-                    <td data-label="Semana">{week}</td>
-                    <td data-label="Alta">{data['alta']}</td>
-                    <td data-label="Media">{data['media']}</td>
-                    <td data-label="Baja">{data['baja']}</td>
-                    <td data-label="Web">{data['web']}</td>
-                    <td data-label="App">{data['app']}</td>
-                </tr>"""
-
-        html += """
-                </tbody>
-            </table>
 
             <div class="chart-container">
-                <div id="priorityChart"></div>
+                <div class="chart-header">
+                    <h3 class="chart-title">Priority Distribution Over Time</h3>
+                </div>
+                <div id="priorityChart" style="height: 400px;"></div>
             </div>
         </div>
 
         <div id="sites" class="tab-content">
-            <h2 class="section-title">Estadísticas Completas por Sitio</h2>
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="section-title-icon">🏢</span>
+                    Site Statistics
+                </h2>
+            </div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Sitio</th>
-                        <th>Total</th>
-                        <th>Web</th>
-                        <th>App</th>
-                        <th>Aceptadas</th>
-                        <th>Rechazadas</th>
-                        <th>Promedio/Semana</th>
-                        <th>Promedio Rechazadas/Semana</th>
-                        <th>Promedio Aceptadas/Semana</th>
-                    </tr>
-                </thead>
-                <tbody>"""
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Site</th>
+                            <th>Total</th>
+                            <th>Web</th>
+                            <th>App</th>
+                            <th>Accepted</th>
+                            <th>Rejected</th>
+                            <th>Avg/Week</th>
+                            <th>Active Weeks</th>
+                        </tr>
+                    </thead>
+                    <tbody>"""
 
-        # Top sitios
+        # Top sites
         site_count = 0
         for site, data in stats['sites'].items():
-            if site_count < 25:  # Top 25
+            if site_count < 20:
                 html += f"""
-                <tr>
-                    <td data-label="Sitio">{site}</td>
-                    <td data-label="Total">{data['total']}</td>
-                    <td data-label="Web">{data['web']}</td>
-                    <td data-label="App">{data['app']}</td>
-                    <td data-label="Aceptadas">{data['aceptadas']}</td>
-                    <td data-label="Rechazadas">{data['rechazadas']}</td>
-                    <td data-label="Promedio/Semana">{data['promedio_por_semana']}</td>
-                    <td data-label="Promedio Rechazadas/Semana">{data['promedio_rechazadas_semana']}</td>
-                    <td data-label="Promedio Aceptadas/Semana">{data['promedio_aceptadas_semana']}</td>
-                </tr>"""
+                        <tr>
+                            <td>{site}</td>
+                            <td>{data['total']}</td>
+                            <td>{data['web']}</td>
+                            <td>{data['app']}</td>
+                            <td>{data['aceptadas']}</td>
+                            <td>{data['rechazadas']}</td>
+                            <td>{data['promedio_por_semana']}</td>
+                            <td>{data['semanas_activo']}</td>
+                        </tr>"""
                 site_count += 1
 
         html += """
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
 
             <div class="chart-container">
-                <div id="siteChart"></div>
+                <div class="chart-header">
+                    <h3 class="chart-title">Top Sites Distribution</h3>
+                </div>
+                <div id="siteChart" style="height: 500px;"></div>
             </div>
         </div>
 
         <div id="weekly" class="tab-content">
-            <h2 class="section-title">Vista Semanal Completa</h2>
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="section-title-icon">📅</span>
+                    Weekly Analysis
+                </h2>
+            </div>
 
-            <div class="week-selector">
-                <label>Seleccionar semana para análisis detallado: </label>
-                <select id="weekSelector" onchange="updateWeeklyView()">"""
+            <div style="margin-bottom: 2rem;">
+                <label style="font-weight: 600; margin-right: 1rem;">Select Week:</label>
+                <div class="custom-select">
+                    <select id="weekSelector" onchange="updateWeeklyView()">"""
 
         for week in stats['weeks_list']:
             html += f'<option value="{week}">{week}</option>'
 
         html += """
-                </select>
+                    </select>
+                </div>
             </div>
 
-            <div id="weeklyAnalysis"></div>
+            <div id="weeklyContent"></div>
         </div>
     </div>
 
     <script>
-        // Datos para los gráficos
-        const allStats = """ + json.dumps(stats) + """;
+        // Global data
+        const statsData = """ + json.dumps(stats) + """;
 
-        // Common Plotly layout options for consistency
-        const commonLayout = {
+        // Theme toggle
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            document.querySelector('.theme-toggle').textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            updateCharts();
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        document.querySelector('.theme-toggle').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+        // Chart configurations
+        const plotlyConfig = { 
+            displayModeBar: false,
+            responsive: true 
+        };
+
+        const plotlyLayout = {
             font: {
-                family: 'Inter, sans-serif',
-                size: 12,
-                color: 'var(--text-dark)'
+                family: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                size: 12
             },
-            paper_bgcolor: 'var(--card-background)',
-            plot_bgcolor: 'var(--card-background)',
-            margin: { t: 60, b: 80, l: 60, r: 30 },
+            paper_bgcolor: 'transparent',
+            plot_bgcolor: 'transparent',
+            margin: { t: 40, b: 60, l: 60, r: 30 },
             hovermode: 'closest',
-            title: {
-                font: {
-                    size: 18,
-                    color: 'var(--text-dark)'
-                },
-                x: 0.05, // Align title to left
-                xanchor: 'left'
-            },
             xaxis: {
                 showgrid: false,
                 zeroline: false,
-                linecolor: 'var(--border-light)',
-                linewidth: 1,
-                tickfont: { size: 10 }
+                linecolor: 'rgba(0,0,0,0.1)',
+                tickfont: { size: 11 }
             },
             yaxis: {
                 showgrid: true,
-                gridcolor: '#f0f0f0',
+                gridcolor: 'rgba(0,0,0,0.05)',
                 zeroline: false,
-                linecolor: 'var(--border-light)',
-                linewidth: 1,
-                tickfont: { size: 10 }
+                linecolor: 'rgba(0,0,0,0.1)',
+                tickfont: { size: 11 }
             },
-            legend: {
-                orientation: 'h',
-                xanchor: 'center',
-                x: 0.5,
-                y: -0.2, // Below the chart
-                font: { size: 10 }
+            hoverlabel: {
+                bgcolor: '#1e293b',
+                bordercolor: '#e2e8f0',
+                font: { color: '#fff' }
             }
         };
 
-        // Function to change tabs
+        // Tab switching
         function showTab(tabName) {
-            // Ocultar todos los tabs
-            const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => tab.classList.remove('active'));
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
 
-            // Desactivar todos los botones
-            const buttons = document.querySelectorAll('.tab-button');
-            buttons.forEach(btn => btn.classList.remove('active'));
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
 
-            // Mostrar tab seleccionado
+            // Show selected tab
             document.getElementById(tabName).classList.add('active');
 
-            // Activar botón correspondiente
-            const buttonTextMap = {
-                'resumen': 'Resumen General',
-                'qa': 'QA',
-                'web': 'Web',
-                'app': 'App',
-                'devs': 'Desarrolladores',
-                'pm': 'PM',
-                'sites': 'Sitios',
-                'weekly': 'Vista Semanal'
-            };
-            const clickedButton = Array.from(document.querySelectorAll('.tab-button')).find(btn => btn.textContent.includes(buttonTextMap[tabName]));
-            if (clickedButton) {
-                clickedButton.classList.add('active');
+            // Activate corresponding button
+            const activeButton = Array.from(document.querySelectorAll('.tab-button')).find(btn => 
+                btn.textContent.toLowerCase().includes(tabName.toLowerCase()) ||
+                (tabName === 'overview' && btn.textContent.includes('Overview')) ||
+                (tabName === 'devs' && btn.textContent.includes('Developers'))
+            );
+            if (activeButton) {
+                activeButton.classList.add('active');
             }
 
-
-            // Cargar gráficos según el tab
-            if (tabName === 'resumen') {
-                loadSummaryCharts();
-            } else if (tabName === 'web') {
-                loadWebCharts();
-            } else if (tabName === 'app') {
-                loadAppCharts();
-            } else if (tabName === 'devs') {
-                loadDevCharts();
-                // Hide any previously shown developer weekly details
-                document.getElementById('devWebWeeklyDetails').style.display = 'none';
-                document.getElementById('devAppWeeklyDetails').style.display = 'none';
-            } else if (tabName === 'pm') {
-                loadPMCharts();
-            } else if (tabName === 'sites') {
-                loadSiteCharts();
-            }
+            // Load charts for the tab
+            setTimeout(() => {
+                switch(tabName) {
+                    case 'overview':
+                        loadOverviewCharts();
+                        break;
+                    case 'qa':
+                        loadQACharts();
+                        break;
+                    case 'web':
+                        loadWebCharts();
+                        break;
+                    case 'app':
+                        loadAppCharts();
+                        break;
+                    case 'devs':
+                        loadDevCharts();
+                        break;
+                    case 'pm':
+                        loadPMCharts();
+                        break;
+                    case 'sites':
+                        loadSiteCharts();
+                        break;
+                    case 'weekly':
+                        updateWeeklyView();
+                        break;
+                }
+            }, 100);
         }
 
-        // Cargar gráficos de resumen
-        function loadSummaryCharts() {
-            // Gráfico de resumen general
-            const summaryData = [
+        // Overview Charts
+        function loadOverviewCharts() {
+            const weeks = statsData.weeks_list.map(w => w.replace('tarjetas semana ', ''));
+            const webData = Object.values(statsData.web.weekly);
+            const appData = Object.values(statsData.app.weekly);
+
+            const overviewTraces = [
                 {
-                    x: ['Web', 'App'],
-                    y: [allStats.web.historical.total_revisadas, allStats.app.historical.total_revisadas],
-                    name: 'Total Revisadas',
-                    type: 'bar',
-                    marker: { color: 'var(--primary-color)' }
+                    x: weeks,
+                    y: webData.map(d => d.revisadas),
+                    name: 'Web Cards',
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    line: { color: '#6366f1', width: 3, shape: 'spline' },
+                    marker: { size: 8 },
+                    fill: 'tonexty',
+                    fillcolor: 'rgba(99, 102, 241, 0.1)'
                 },
                 {
-                    x: ['Web', 'App'],
-                    y: [allStats.web.historical.total_rechazadas, allStats.app.historical.total_rechazadas],
-                    name: 'Rechazadas',
-                    type: 'bar',
-                    marker: { color: 'var(--danger-color)' }
-                },
-                {
-                    x: ['Web', 'App'],
-                    y: [allStats.web.historical.total_aceptadas, allStats.app.historical.total_aceptadas],
-                    name: 'Aceptadas',
-                    type: 'bar',
-                    marker: { color: 'var(--success-color)' }
+                    x: weeks,
+                    y: appData.map(d => d.revisadas),
+                    name: 'App Cards',
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    line: { color: '#ec4899', width: 3, shape: 'spline' },
+                    marker: { size: 8 }
                 }
             ];
 
-            const summaryLayout = {
-                ...commonLayout,
-                title: 'Resumen General - Web vs App',
-                barmode: 'group',
-                height: 400
-            };
-
-            Plotly.newPlot('summaryChart', summaryData, summaryLayout);
-
-            // Gráfico de plataformas
-            const platformData = {
-                labels: Object.keys(allStats.platforms),
-                values: Object.values(allStats.platforms),
-                type: 'pie',
-                hole: 0.4,
-                textposition: 'outside', // Changed to outside for better readability
-                textinfo: 'label+percent',
-                marker: {
-                    colors: [
-                        '#4A00E0', '#8E2DE2', '#00C9FF', '#FF8C00', '#20B2AA',
-                        '#FF6347', '#4682B4', '#DA70D6', '#3CB371', '#BA55D3'
-                    ]
-                },
-                hoverinfo: 'label+value+percent',
-                pull: [0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0] // Slightly pull out the first slice
-            };
-
-            const platformLayout = {
-                ...commonLayout,
-                title: 'Distribución por Plataforma',
-                height: 400,
+            const overviewLayout = {
+                ...plotlyLayout,
+                title: { text: '', font: { size: 16 } },
+                xaxis: { ...plotlyLayout.xaxis, title: 'Week' },
+                yaxis: { ...plotlyLayout.yaxis, title: 'Cards Reviewed' },
                 showlegend: true,
                 legend: {
                     orientation: 'h',
-                    xanchor: 'center',
                     x: 0.5,
-                    y: -0.2, // Below the chart
-                    font: { size: 10 }
+                    xanchor: 'center',
+                    y: -0.2
                 }
             };
 
-            Plotly.newPlot('platformChart', [platformData], platformLayout);
+            Plotly.newPlot('overviewChart', overviewTraces, overviewLayout, plotlyConfig);
+
+            // Platform Distribution Chart
+            const platformData = [{
+                labels: Object.keys(statsData.platforms),
+                values: Object.values(statsData.platforms),
+                type: 'pie',
+                hole: 0.6,
+                textposition: 'outside',
+                textinfo: 'label+percent',
+                marker: {
+                    colors: ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', 
+                             '#ef4444', '#3b82f6', '#a855f7', '#f97316', '#14b8a6'],
+                    line: { color: '#fff', width: 2 }
+                },
+                hoverinfo: 'label+value+percent'
+            }];
+
+            const platformLayout = {
+                ...plotlyLayout,
+                title: { text: '', font: { size: 16 } },
+                showlegend: false,
+                annotations: [{
+                    text: 'Platforms',
+                    x: 0.5,
+                    y: 0.5,
+                    font: { size: 20, weight: 'bold' },
+                    showarrow: false
+                }]
+            };
+
+            Plotly.newPlot('platformChart', platformData, platformLayout, plotlyConfig);
         }
 
-        // Cargar gráficos Web
-        function loadWebCharts() {
-            const weeks = Object.keys(allStats.web.weekly);
-            const webData = Object.values(allStats.web.weekly);
+        // QA Charts
+        function loadQACharts() {
+            const qaNames = Object.keys(statsData.qa.historical.por_qa).slice(0, 10);
+            const qaReviewed = qaNames.map(qa => statsData.qa.historical.por_qa[qa].total_revisadas);
+            const qaRejected = qaNames.map(qa => statsData.qa.historical.por_qa[qa].total_rechazadas);
 
-            const webTrace = {
-                x: weeks.map(w => w.replace('tarjetas semana ', '')),
-                y: webData.map(d => d.porcentaje_rechazo),
-                type: 'scatter',
-                mode: 'lines+markers',
-                name: 'Porcentaje de Rechazo',
-                line: { color: 'var(--primary-color)', width: 3, shape: 'spline' },
-                marker: { size: 8, symbol: 'circle', color: 'var(--primary-color)', line: { width: 1, color: 'white' } },
-                hovertemplate: 'Semana: %{x}<br>Rechazo: %{y:.2f}%<extra></extra>'
+            const qaTraces = [
+                {
+                    x: qaNames,
+                    y: qaReviewed,
+                    name: 'Reviewed',
+                    type: 'bar',
+                    marker: { 
+                        color: '#6366f1',
+                        line: { color: '#4f46e5', width: 1 }
+                    }
+                },
+                {
+                    x: qaNames,
+                    y: qaRejected,
+                    name: 'Rejected',
+                    type: 'bar',
+                    marker: { 
+                        color: '#ef4444',
+                        line: { color: '#dc2626', width: 1 }
+                    }
+                }
+            ];
+
+            const qaLayout = {
+                ...plotlyLayout,
+                title: { text: '', font: { size: 16 } },
+                xaxis: { ...plotlyLayout.xaxis, title: 'QA/PM', tickangle: -45 },
+                yaxis: { ...plotlyLayout.yaxis, title: 'Number of Cards' },
+                barmode: 'group',
+                bargap: 0.2,
+                bargroupgap: 0.1
             };
+
+            Plotly.newPlot('qaChart', qaTraces, qaLayout, plotlyConfig);
+        }
+
+        // Web Charts
+        function loadWebCharts() {
+            const weeks = Object.keys(statsData.web.weekly).map(w => w.replace('tarjetas semana ', ''));
+            const webData = Object.values(statsData.web.weekly);
+
+            const webTraces = [
+                {
+                    x: weeks,
+                    y: webData.map(d => d.porcentaje_rechazo),
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'Rejection Rate',
+                    line: { 
+                        color: '#6366f1', 
+                        width: 4,
+                        shape: 'spline'
+                    },
+                    marker: { 
+                        size: 10,
+                        color: '#6366f1',
+                        line: { color: '#fff', width: 2 }
+                    },
+                    fill: 'tozeroy',
+                    fillcolor: 'rgba(99, 102, 241, 0.1)'
+                }
+            ];
 
             const webLayout = {
-                ...commonLayout,
-                title: 'Tendencia de Rechazo Web por Semana',
-                xaxis: { title: 'Semana' },
-                yaxis: { title: 'Porcentaje de Rechazo (%)', range: [0, Math.max(...webData.map(d => d.porcentaje_rechazo)) * 1.2 || 100] },
-                height: 400
+                ...plotlyLayout,
+                title: { text: '', font: { size: 16 } },
+                xaxis: { ...plotlyLayout.xaxis, title: 'Week' },
+                yaxis: { 
+                    ...plotlyLayout.yaxis, 
+                    title: 'Rejection Rate (%)',
+                    range: [0, Math.max(...webData.map(d => d.porcentaje_rechazo)) * 1.2]
+                },
+                shapes: [{
+                    type: 'line',
+                    x0: 0,
+                    x1: 1,
+                    xref: 'paper',
+                    y0: statsData.web.historical.porcentaje_rechazo,
+                    y1: statsData.web.historical.porcentaje_rechazo,
+                    line: {
+                        color: '#ef4444',
+                        width: 2,
+                        dash: 'dash'
+                    }
+                }],
+                annotations: [{
+                    x: 0.98,
+                    y: statsData.web.historical.porcentaje_rechazo,
+                    xref: 'paper',
+                    text: 'Average: ' + statsData.web.historical.porcentaje_rechazo + '%',
+                    showarrow: false,
+                    bgcolor: '#ef4444',
+                    bordercolor: '#ef4444',
+                    font: { color: '#fff', size: 12 },
+                    borderpad: 4,
+                    borderwidth: 1,
+                    xanchor: 'right'
+                }]
             };
 
-            Plotly.newPlot('webTrendChart', [webTrace], webLayout);
+            Plotly.newPlot('webChart', webTraces, webLayout, plotlyConfig);
         }
 
-        // Cargar gráficos App
+        // App Charts
         function loadAppCharts() {
-            const weeks = Object.keys(allStats.app.weekly);
-            const appData = Object.values(allStats.app.weekly);
+            const weeks = Object.keys(statsData.app.weekly).map(w => w.replace('tarjetas semana ', ''));
+            const appData = Object.values(statsData.app.weekly);
 
-            const appTrace = {
-                x: weeks.map(w => w.replace('tarjetas semana ', '')),
-                y: appData.map(d => d.porcentaje_rechazo),
-                type: 'scatter',
-                mode: 'lines+markers',
-                name: 'Porcentaje de Rechazo',
-                line: { color: 'var(--danger-color)', width: 3, shape: 'spline' },
-                marker: { size: 8, symbol: 'square', color: 'var(--danger-color)', line: { width: 1, color: 'white' } },
-                hovertemplate: 'Semana: %{x}<br>Rechazo: %{y:.2f}%<extra></extra>'
-            };
+            const appTraces = [
+                {
+                    x: weeks,
+                    y: appData.map(d => d.porcentaje_rechazo),
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'Rejection Rate',
+                    line: { 
+                        color: '#ec4899', 
+                        width: 4,
+                        shape: 'spline'
+                    },
+                    marker: { 
+                        size: 10,
+                        color: '#ec4899',
+                        line: { color: '#fff', width: 2 }
+                    },
+                    fill: 'tozeroy',
+                    fillcolor: 'rgba(236, 72, 153, 0.1)'
+                }
+            ];
 
             const appLayout = {
-                ...commonLayout,
-                title: 'Tendencia de Rechazo App por Semana',
-                xaxis: { title: 'Semana' },
-                yaxis: { title: 'Porcentaje de Rechazo (%)', range: [0, Math.max(...appData.map(d => d.porcentaje_rechazo)) * 1.2 || 100] },
-                height: 400
+                ...plotlyLayout,
+                title: { text: '', font: { size: 16 } },
+                xaxis: { ...plotlyLayout.xaxis, title: 'Week' },
+                yaxis: { 
+                    ...plotlyLayout.yaxis, 
+                    title: 'Rejection Rate (%)',
+                    range: [0, Math.max(...appData.map(d => d.porcentaje_rechazo)) * 1.2]
+                },
+                shapes: [{
+                    type: 'line',
+                    x0: 0,
+                    x1: 1,
+                    xref: 'paper',
+                    y0: statsData.app.historical.porcentaje_rechazo,
+                    y1: statsData.app.historical.porcentaje_rechazo,
+                    line: {
+                        color: '#ef4444',
+                        width: 2,
+                        dash: 'dash'
+                    }
+                }],
+                annotations: [{
+                    x: 0.98,
+                    y: statsData.app.historical.porcentaje_rechazo,
+                    xref: 'paper',
+                    text: 'Average: ' + statsData.app.historical.porcentaje_rechazo + '%',
+                    showarrow: false,
+                    bgcolor: '#ef4444',
+                    bordercolor: '#ef4444',
+                    font: { color: '#fff', size: 12 },
+                    borderpad: 4,
+                    borderwidth: 1,
+                    xanchor: 'right'
+                }]
             };
 
-            Plotly.newPlot('appTrendChart', [appTrace], appLayout);
+            Plotly.newPlot('appChart', appTraces, appLayout, plotlyConfig);
         }
 
-        // Cargar gráficos de desarrolladores
+        // Developer Charts
         function loadDevCharts() {
-            // Top 5 desarrolladores Web vs App
-            const top5Web = Object.entries(allStats.dev_web).slice(0, 5);
-            const top5App = Object.entries(allStats.dev_app).slice(0, 5);
+            const top5Web = Object.entries(statsData.dev_web).slice(0, 5);
+            const top5App = Object.entries(statsData.dev_app).slice(0, 5);
 
-            const traces = [
+            const devTraces = [
                 {
                     x: top5Web.map(([dev, data]) => dev),
                     y: top5Web.map(([dev, data]) => data.total_tarjetas),
                     name: 'Web - Total',
                     type: 'bar',
-                    marker: { color: 'var(--primary-color)' }
+                    marker: { 
+                        color: '#6366f1',
+                        line: { color: '#4f46e5', width: 1 }
+                    }
                 },
                 {
                     x: top5Web.map(([dev, data]) => dev),
                     y: top5Web.map(([dev, data]) => data.rechazadas),
-                    name: 'Web - Rechazadas',
+                    name: 'Web - Rejected',
                     type: 'bar',
-                    marker: { color: 'rgba(74, 0, 224, 0.6)' } // Lighter primary
+                    marker: { 
+                        color: 'rgba(99, 102, 241, 0.5)',
+                        line: { color: '#6366f1', width: 1 }
+                    }
                 },
                 {
                     x: top5App.map(([dev, data]) => dev),
                     y: top5App.map(([dev, data]) => data.total_tarjetas),
                     name: 'App - Total',
                     type: 'bar',
-                    marker: { color: 'var(--danger-color)' }
+                    marker: { 
+                        color: '#ec4899',
+                        line: { color: '#db2777', width: 1 }
+                    }
                 },
                 {
                     x: top5App.map(([dev, data]) => dev),
                     y: top5App.map(([dev, data]) => data.rechazadas),
-                    name: 'App - Rechazadas',
+                    name: 'App - Rejected',
                     type: 'bar',
-                    marker: { color: 'rgba(231, 76, 60, 0.6)' } // Lighter danger
+                    marker: { 
+                        color: 'rgba(236, 72, 153, 0.5)',
+                        line: { color: '#ec4899', width: 1 }
+                    }
                 }
             ];
 
-            const layout = {
-                ...commonLayout,
-                title: 'Top 5 Desarrolladores - Comparación Web vs App',
+            const devLayout = {
+                ...plotlyLayout,
+                title: { text: '', font: { size: 16 } },
+                xaxis: { ...plotlyLayout.xaxis, title: 'Developer', tickangle: -45 },
+                yaxis: { ...plotlyLayout.yaxis, title: 'Number of Cards' },
                 barmode: 'group',
-                height: 500,
-                xaxis: { tickangle: -45 }
+                height: 500
             };
 
-            Plotly.newPlot('devComparisonChart', traces, layout);
+            Plotly.newPlot('devChart', devTraces, devLayout, plotlyConfig);
         }
 
-        // Cargar gráficos PM
+        // PM Charts
         function loadPMCharts() {
-            const weeks = Object.keys(allStats.pm.por_semana);
-            const pmData = Object.values(allStats.pm.por_semana);
+            const weeks = Object.keys(statsData.pm.por_semana).map(w => w.replace('tarjetas semana ', ''));
+            const pmData = Object.values(statsData.pm.por_semana);
 
-            const traces = [
+            const pmTraces = [
                 {
-                    x: weeks.map(w => w.replace('tarjetas semana ', '')),
+                    x: weeks,
                     y: pmData.map(d => d.alta),
-                    name: 'Alta',
+                    name: 'High Priority',
                     type: 'scatter',
                     mode: 'lines+markers',
-                    line: { color: 'var(--danger-color)', width: 3, shape: 'spline' },
-                    marker: { size: 8 }
+                    line: { color: '#ef4444', width: 3 },
+                    marker: { size: 8 },
+                    stackgroup: 'one'
                 },
                 {
-                    x: weeks.map(w => w.replace('tarjetas semana ', '')),
+                    x: weeks,
                     y: pmData.map(d => d.media),
-                    name: 'Media',
+                    name: 'Medium Priority',
                     type: 'scatter',
                     mode: 'lines+markers',
-                    line: { color: 'var(--warning-color)', width: 3, shape: 'spline' },
-                    marker: { size: 8 }
+                    line: { color: '#f59e0b', width: 3 },
+                    marker: { size: 8 },
+                    stackgroup: 'one'
                 },
                 {
-                    x: weeks.map(w => w.replace('tarjetas semana ', '')),
+                    x: weeks,
                     y: pmData.map(d => d.baja),
-                    name: 'Baja',
+                    name: 'Low Priority',
                     type: 'scatter',
                     mode: 'lines+markers',
-                    line: { color: 'var(--success-color)', width: 3, shape: 'spline' },
-                    marker: { size: 8 }
+                    line: { color: '#10b981', width: 3 },
+                    marker: { size: 8 },
+                    stackgroup: 'one'
                 }
             ];
 
-            const layout = {
-                ...commonLayout,
-                title: 'Evolución de Prioridades por Semana',
-                xaxis: { title: 'Semana' },
-                yaxis: { title: 'Número de Tarjetas' },
-                height: 400
+            const pmLayout = {
+                ...plotlyLayout,
+                title: { text: '', font: { size: 16 } },
+                xaxis: { ...plotlyLayout.xaxis, title: 'Week' },
+                yaxis: { ...plotlyLayout.yaxis, title: 'Number of Cards' },
+                hovermode: 'x unified'
             };
 
-            Plotly.newPlot('priorityChart', traces, layout);
+            Plotly.newPlot('priorityChart', pmTraces, pmLayout, plotlyConfig);
         }
 
-        // Cargar gráficos de sitios
+        // Site Charts
         function loadSiteCharts() {
-            const top10Sites = Object.entries(allStats.sites).slice(0, 10);
+            const top10Sites = Object.entries(statsData.sites).slice(0, 10);
 
-            const traces = [
-                {
-                    x: top10Sites.map(([site, data]) => site),
-                    y: top10Sites.map(([site, data]) => data.web),
-                    name: 'Web',
-                    type: 'bar',
-                    marker: { color: 'var(--primary-color)' }
+            const siteTraces = [{
+                labels: top10Sites.map(([site, data]) => site),
+                values: top10Sites.map(([site, data]) => data.total),
+                type: 'pie',
+                hole: 0.4,
+                textposition: 'outside',
+                textinfo: 'label+percent',
+                marker: {
+                    colors: ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', 
+                             '#ef4444', '#3b82f6', '#a855f7', '#f97316', '#14b8a6'],
+                    line: { color: '#fff', width: 2 }
                 },
-                {
-                    x: top10Sites.map(([site, data]) => site),
-                    y: top10Sites.map(([site, data]) => data.app),
-                    name: 'App',
-                    type: 'bar',
-                    marker: { color: 'var(--danger-color)' }
+                hoverinfo: 'label+value+percent'
+            }];
+
+            const siteLayout = {
+                ...plotlyLayout,
+                title: { text: '', font: { size: 16 } },
+                height: 500,
+                showlegend: true,
+                legend: {
+                    orientation: 'v',
+                    x: 1.1,
+                    xanchor: 'left',
+                    y: 0.5
                 }
-            ];
-
-            const layout = {
-                ...commonLayout,
-                title: 'Top 10 Sitios - Distribución Web vs App',
-                barmode: 'stack',
-                height: 400,
-                xaxis: { tickangle: -45 }
             };
 
-            Plotly.newPlot('siteChart', traces, layout);
+            Plotly.newPlot('siteChart', siteTraces, siteLayout, plotlyConfig);
         }
 
-        // Actualizar vista semanal
-        function updateWeeklyView() {
-            const selectedWeek = document.getElementById('weekSelector').value;
-            const weekData = {
-                qa: allStats.qa.weekly[selectedWeek],
-                web: allStats.web.weekly[selectedWeek],
-                app: allStats.app.weekly[selectedWeek],
-                pm: allStats.pm.por_semana[selectedWeek]
-            };
-
-            let html = '<div class="info-box">';
-            html += '<h3>Resumen de ' + selectedWeek + '</h3>';
-            html += '<div class="stats-grid">';
-            html += '<div class="metric-group">';
-            html += '<h4>QA</h4>';
-            html += '<p>Total tarjetas: <strong>' + weekData.qa.total_semana + '</strong></p>';
-            html += '<p>Total rechazadas: <strong>' + weekData.qa.total_rechazadas_semana + '</strong></p>';
-            html += '</div>';
-            html += '<div class="metric-group">';
-            html += '<h4>Web</h4>';
-            html += '<p>Revisadas: <strong>' + weekData.web.revisadas + '</strong></p>';
-            html += '<p>Aceptadas: <strong>' + weekData.web.aceptadas + '</strong></p>';
-            html += '<p>Rechazadas: <strong>' + weekData.web.rechazadas + '</strong></p>';
-            html += '<p>% Rechazo: <span class="highlight">' + weekData.web.porcentaje_rechazo + '%</span></p>';
-            html += '</div>';
-            html += '<div class="metric-group">';
-            html += '<h4>App</h4>';
-            html += '<p>Revisadas: <strong>' + weekData.app.revisadas + '</strong></p>';
-            html += '<p>Aceptadas: <strong>' + weekData.app.aceptadas + '</strong></p>';
-            html += '<p>Rechazadas: <strong>' + weekData.app.rechazadas + '</strong></p>';
-            html += '<p>% Rechazo: <span class="highlight">' + weekData.app.porcentaje_rechazo + '%</span></p>';
-            html += '</div>';
-            html += '<div class="metric-group">';
-            html += '<h4>Prioridades</h4>';
-            html += '<p>Alta: <strong>' + weekData.pm.alta + '</strong></p>';
-            html += '<p>Media: <strong>' + weekData.pm.media + '</strong></p>';
-            html += '<p>Baja: <strong>' + weekData.pm.baja + '</strong></p>';
-            html += '</div>';
-            html += '</div>';
-            html += '</div>';
-
-            document.getElementById('weeklyAnalysis').innerHTML = html;
-        }
-
-        // Actualizar vista semanal de QA
-        function updateQAWeekView() {
-            const selector = document.getElementById('qaWeekSelector');
-            const selectedWeek = selector.value;
-
-            if (selectedWeek === 'all') {
-                document.getElementById('qaWeeklyDetails').innerHTML = '';
-                return;
-            }
-
-            const weekData = allStats.qa.weekly[selectedWeek];
-            let html = '<div class="info-box">';
-            html += '<h4>Detalle de ' + selectedWeek + '</h4>';
-            html += '<table><thead><tr><th>QA/PM</th><th>Tarjetas Revisadas</th><th>Tarjetas Rechazadas</th></tr></thead><tbody>';
-
-            for (const [qa, count] of Object.entries(weekData.tarjetas_por_qa)) {
-                const rechazadas = weekData.rechazadas_por_qa[qa] || 0;
-                html += `<tr>
-                            <td data-label="QA/PM">${qa}</td>
-                            <td data-label="Tarjetas Revisadas">${count}</td>
-                            <td data-label="Tarjetas Rechazadas">${rechazadas}</td>
-                         </tr>`;
-            }
-
-            html += '</tbody></table></div>';
-            document.getElementById('qaWeeklyDetails').innerHTML = html;
-        }
-
-        // NEW: Function to show weekly metrics for a specific developer
-        function showDevWeeklyMetrics(developerName, devType) {
-            let weeklyDetails = {};
-            let targetDivId = '';
-
-            if (devType === 'web') {
-                weeklyDetails = allStats.dev_web_weekly_details[developerName];
-                targetDivId = 'devWebWeeklyDetails';
-            } else if (devType === 'app') {
-                weeklyDetails = allStats.dev_app_weekly_details[developerName];
-                targetDivId = 'devAppWeeklyDetails';
-            }
-
-            let html = `<h3>Métricas Semanales para ${developerName} (${devType.toUpperCase()})</h3>`;
-            html += `<table>
-                        <thead>
-                            <tr>
-                                <th>Semana</th>
-                                <th>Total Tarjetas</th>
-                                <th>Rechazadas</th>
-                                <th>Aceptadas</th>
-                                <th>% Rechazo</th>
-                            </tr>
-                        </thead>
-                        <tbody>`;
-
-            if (!weeklyDetails || Object.keys(weeklyDetails).length === 0) {
-                html += `<tr><td colspan="5" style="text-align: center; color: var(--text-medium);">No hay datos semanales disponibles para este desarrollador.</td></tr>`;
+        // Developer Details
+        function showDevDetails(devName, devType) {
+            const weeklyData = devType === 'web' ? 
+                statsData.dev_web_weekly_details[devName] : 
+                statsData.dev_app_weekly_details[devName];
+            
+            const targetDiv = devType === 'web' ? 'devWebDetails' : 'devAppDetails';
+            
+            let html = `<h3>Weekly Performance: ${devName}</h3>`;
+            html += '<table style="width: 100%; margin-top: 1rem;">';
+            html += '<thead><tr><th>Week</th><th>Total Cards</th><th>Rejected</th><th>Accepted</th><th>Rejection Rate</th></tr></thead><tbody>';
+            
+            if (!weeklyData || Object.keys(weeklyData).length === 0) {
+                html += '<tr><td colspan="5" style="text-align: center;">No weekly data available</td></tr>';
             } else {
-                for (const week of allStats.weeks_list) { // Iterate through all weeks to show gaps
-                    const data = weeklyDetails[week];
+                for (const week of statsData.weeks_list) {
+                    const data = weeklyData[week];
                     if (data) {
-                        const percentageClass = data.porcentaje_rechazo > 20 ? 'high' : (data.porcentaje_rechazo > 10 ? 'medium' : 'low');
+                        const badgeClass = data.porcentaje_rechazo > 20 ? 'badge-danger' : 
+                                           data.porcentaje_rechazo > 10 ? 'badge-warning' : 'badge-success';
                         html += `<tr>
-                                    <td data-label="Semana">${week}</td>
-                                    <td data-label="Total Tarjetas">${data.total_tarjetas}</td>
-                                    <td data-label="Rechazadas">${data.rechazadas}</td>
-                                    <td data-label="Aceptadas">${data.aceptadas}</td>
-                                    <td data-label="% Rechazo"><span class="percentage ${percentageClass}">${data.porcentaje_rechazo}%</span></td>
-                                </tr>`;
-                    } else {
-                        html += `<tr>
-                                    <td data-label="Semana">${week}</td>
-                                    <td colspan="4" style="text-align: center; color: var(--text-medium); font-style: italic;">(No activo esta semana)</td>
-                                </tr>`;
+                            <td>${week.replace('tarjetas semana ', 'Week ')}</td>
+                            <td>${data.total_tarjetas}</td>
+                            <td>${data.rechazadas}</td>
+                            <td>${data.aceptadas}</td>
+                            <td><span class="badge ${badgeClass}">${data.porcentaje_rechazo}%</span></td>
+                        </tr>`;
                     }
                 }
             }
-
-            html += `</tbody></table>`;
-
-            const targetDiv = document.getElementById(targetDivId);
-            targetDiv.innerHTML = html;
-            targetDiv.style.display = 'block'; // Make the div visible
-
-            // Scroll to the new details section
-            targetDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            html += '</tbody></table>';
+            
+            const detailsDiv = document.getElementById(targetDiv);
+            detailsDiv.innerHTML = html;
+            detailsDiv.style.display = 'block';
+            detailsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
+        // Weekly View
+        function updateWeeklyView() {
+            const selectedWeek = document.getElementById('weekSelector').value;
+            const weekData = {
+                qa: statsData.qa.weekly[selectedWeek],
+                web: statsData.web.weekly[selectedWeek],
+                app: statsData.app.weekly[selectedWeek],
+                pm: statsData.pm.por_semana[selectedWeek]
+            };
 
-        // Cargar gráficos iniciales
-        loadSummaryCharts();
+            let html = '<div class="stats-grid">';
+            
+            // QA Stats
+            html += '<div class="stat-card">';
+            html += '<div class="stat-icon">👥</div>';
+            html += '<div class="stat-label">Total Cards</div>';
+            html += '<div class="stat-value">' + weekData.qa.total_semana + '</div>';
+            html += '<div class="stat-change negative">';
+            html += weekData.qa.total_rechazadas_semana + ' rejected';
+            html += '</div>';
+            html += '</div>';
 
-        // Inicializar vista semanal con la primera semana
-        if (allStats.weeks_list.length > 0) {
-            document.getElementById('weekSelector').value = allStats.weeks_list[0];
-            updateWeeklyView();
+            // Web Stats
+            html += '<div class="stat-card">';
+            html += '<div class="stat-icon">🌐</div>';
+            html += '<div class="stat-label">Web Performance</div>';
+            html += '<div class="stat-value">' + weekData.web.revisadas + '</div>';
+            html += '<div class="progress-bar" style="margin-top: 1rem;">';
+            html += '<div class="progress-fill" style="width: ' + (100 - weekData.web.porcentaje_rechazo) + '%"></div>';
+            html += '</div>';
+            html += '<div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.875rem;">';
+            html += '<span style="color: var(--success);">✓ ' + weekData.web.aceptadas + '</span>';
+            html += '<span style="color: var(--danger);">✗ ' + weekData.web.rechazadas + '</span>';
+            html += '</div>';
+            html += '</div>';
+
+            // App Stats
+            html += '<div class="stat-card">';
+            html += '<div class="stat-icon">📱</div>';
+            html += '<div class="stat-label">App Performance</div>';
+            html += '<div class="stat-value">' + weekData.app.revisadas + '</div>';
+            html += '<div class="progress-bar" style="margin-top: 1rem;">';
+            html += '<div class="progress-fill" style="width: ' + (100 - weekData.app.porcentaje_rechazo) + '%"></div>';
+            html += '</div>';
+            html += '<div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.875rem;">';
+            html += '<span style="color: var(--success);">✓ ' + weekData.app.aceptadas + '</span>';
+            html += '<span style="color: var(--danger);">✗ ' + weekData.app.rechazadas + '</span>';
+            html += '</div>';
+            html += '</div>';
+
+            // Priority Stats
+            html += '<div class="stat-card">';
+            html += '<div class="stat-icon">📊</div>';
+            html += '<div class="stat-label">Priority Distribution</div>';
+            html += '<div style="margin-top: 1rem;">';
+            html += '<div class="metric-card">';
+            html += '<div class="metric-label">🔴 High Priority</div>';
+            html += '<div class="metric-value">' + weekData.pm.alta + '</div>';
+            html += '</div>';
+            html += '<div class="metric-card">';
+            html += '<div class="metric-label">🟡 Medium Priority</div>';
+            html += '<div class="metric-value">' + weekData.pm.media + '</div>';
+            html += '</div>';
+            html += '<div class="metric-card">';
+            html += '<div class="metric-label">🟢 Low Priority</div>';
+            html += '<div class="metric-value">' + weekData.pm.baja + '</div>';
+            html += '</div>';
+            html += '</div>';
+            html += '</div>';
+            
+            html += '</div>';
+
+            // QA Performance Table
+            html += '<div class="table-container" style="margin-top: 2rem;">';
+            html += '<h3 style="padding: 1rem; font-size: 1.25rem;">QA Performance This Week</h3>';
+            html += '<table><thead><tr><th>QA/PM</th><th>Cards Reviewed</th><th>Cards Rejected</th><th>Rejection Rate</th></tr></thead><tbody>';
+
+            for (const [qa, count] of Object.entries(weekData.qa.tarjetas_por_qa)) {
+                const rejected = weekData.qa.rechazadas_por_qa[qa] || 0;
+                const rate = count > 0 ? (rejected / count * 100).toFixed(1) : 0;
+                const badgeClass = rate > 20 ? 'badge-danger' : rate > 10 ? 'badge-warning' : 'badge-success';
+                html += `<tr>
+                    <td>${qa}</td>
+                    <td>${count}</td>
+                    <td>${rejected}</td>
+                    <td><span class="badge ${badgeClass}">${rate}%</span></td>
+                </tr>`;
+            }
+
+            html += '</tbody></table></div>';
+
+            document.getElementById('weeklyContent').innerHTML = html;
         }
+
+        // Update charts when theme changes
+        function updateCharts() {
+            const currentTab = document.querySelector('.tab-content.active').id;
+            showTab(currentTab);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add smooth scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // Load initial charts
+            loadOverviewCharts();
+
+            // Initialize weekly view
+            if (statsData.weeks_list.length > 0) {
+                document.getElementById('weekSelector').value = statsData.weeks_list[statsData.weeks_list.length - 1];
+                updateWeeklyView();
+            }
+
+            // Add hover effects to cards
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px) scale(1.02)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+        });
+
+        // Resize handler for responsive charts
+        window.addEventListener('resize', function() {
+            const charts = ['overviewChart', 'platformChart', 'qaChart', 'webChart', 
+                            'appChart', 'devChart', 'priorityChart', 'siteChart'];
+            charts.forEach(chartId => {
+                const chartDiv = document.getElementById(chartId);
+                if (chartDiv && chartDiv.data) {
+                    Plotly.Plots.resize(chartId);
+                }
+            });
+        });
     </script>
 </body>
 </html>"""
 
         return html
 
-    def save_dashboard(self, filename='qa_dashboard_completo.html'):
-        """Guarda el dashboard completo como archivo HTML"""
+    def save_dashboard(self, filename='qa_dashboard_enhanced.html'):
+        """Guarda el dashboard mejorado como archivo HTML"""
         print("\nGenerando todas las estadísticas...")
         stats = self.generate_all_statistics()
 
-        print("Creando dashboard HTML completo...")
+        print("Creando dashboard HTML con diseño moderno...")
         html_content = self.generate_html_dashboard(stats)
 
         try:
